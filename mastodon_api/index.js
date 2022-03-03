@@ -15,19 +15,25 @@ async function main(url, _callback) {
             let i = 0;
             Array.from(document.querySelectorAll("h3")).map(header => {
                 if (["Suspended servers","Filtered media","Limited servers", "Silenced servers"].includes(header.innerText)) {
-                    Array.from(document.querySelectorAll("table")[i].rows).map((instance, j) => {
+                    Array.from(document.querySelectorAll("table")[i].rows).map((row, j) => {
                         if (j == 0)
                             return;
+
+                        let row_obj = {
+                            hash: row.querySelector("[title]").title.replace("SHA-256: ", ""),
+                            reason: row.childNodes[3].innerText,
+                        }
+
                         switch(header.innerText) {
                             case "Suspended servers":
-                                reject.push(instance.innerText.split("\n\t")[0]);
+                                reject.push(row_obj);
                                 break;
                             case "Filtered media":
-                                media_removal.push(instance.innerText.split("\n\t")[0]);
+                                media_removal.push(row_obj);
                                 break;
                             case "Limited servers":
                             case "Silenced servers":
-                                federated_timeline_removal.push(instance.innerText.split("\n\t")[0]);
+                                federated_timeline_removal.push(row_obj);
                                 break;
                         }
                     });
