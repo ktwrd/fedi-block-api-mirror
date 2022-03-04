@@ -7,4 +7,4 @@ Restart=always
 RestartSec=1
 User=
 WorkingDirectory=/fedi-block-api
-ExecStart=python fetch_blocks.py 
+ExecStart=python3 fetch_blocks.py 
