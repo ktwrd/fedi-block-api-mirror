@@ -15,10 +15,13 @@ Copy the preloaded database to the live database
 
 Start the mastodon API
 
+Make sure to edit the `User` and `WorkingDirectory` of the service file accordingly.
+
 ```
+sudo cp services/mastodon_api.service /etc/systemd/system
 cd mastodon_api
 yarn install
-node .
+systemctl start mastodon_api
 ```
 
 Fill the database with blocks.

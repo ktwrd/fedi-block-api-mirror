@@ -1,0 +1,10 @@
+[Unit]
+Description=Mastodon API
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=
+WorkingDirectory=/fedi-block-api/mastodon_api
+ExecStart=node .
