@@ -1,0 +1,10 @@
+[Unit]
+Description=Fetch blocks
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=
+WorkingDirectory=/fedi-block-api
+ExecStart=python fetch_blocks.py 

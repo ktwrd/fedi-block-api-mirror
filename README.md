@@ -26,7 +26,12 @@ systemctl start mastodon_api
 
 Fill the database with blocks.
 
-`python fetch_blocks.py`
+Make sure to edit the `User` and `WorkingDirectory` of the service file accordingly.
+
+```
+sudo cp services/fetch_blocks.service /etc/systemd/system
+systemctl start fetch_blocks
+```
 
 ## License
 
