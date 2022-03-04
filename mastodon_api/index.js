@@ -20,6 +20,7 @@ async function main(domain, _callback) {
                             return;
 
                         let row_obj = {
+                            domain: row.childNodes[1].innerText,
                             hash: row.querySelector("[title]").title.replace("SHA-256: ", ""),
                             reason: row.childNodes[3].innerText,
                         }
