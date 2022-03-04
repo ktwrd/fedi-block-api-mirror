@@ -12,10 +12,9 @@ async function main(domain, _callback) {
             let reject = []; // Suspended servers
             let media_removal = []; // Filtered media
             let federated_timeline_removal = []; // Silenced servers, Limited servers
-            let i = 0;
-            Array.from(document.querySelectorAll("h3")).map(header => {
-                if (["Suspended servers","Filtered media","Limited servers", "Silenced servers"].includes(header.innerText)) {
-                    Array.from(document.querySelectorAll("table")[i].rows).map((row, j) => {
+            Array.from(document.querySelectorAll("table")).map(table => {
+                if (["Suspended servers","Filtered media","Limited servers", "Silenced servers"].includes(table.previousElementSibling.previousElementSibling.innerText)) {
+                    Array.from(table.rows).map((row, j) => {
                         if (j == 0)
                             return;
 
@@ -25,7 +24,7 @@ async function main(domain, _callback) {
                             reason: row.childNodes[3].innerText,
                         }
 
-                        switch(header.innerText) {
+                        switch(table.previousElementSibling.previousElementSibling.innerText) {
                             case "Suspended servers":
                                 reject.push(row_obj);
                                 break;
@@ -38,7 +37,6 @@ async function main(domain, _callback) {
                                 break;
                         }
                     });
-                    i++;
                 }
             });
             return {
