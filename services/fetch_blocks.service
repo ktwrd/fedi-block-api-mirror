@@ -4,7 +4,7 @@ Description=Fetch blocks
 [Service]
 Type=simple
 Restart=always
-RestartSec=1
+RestartSec=86400
 User=
 WorkingDirectory=/fedi-block-api
 ExecStart=python3 fetch_blocks.py 
