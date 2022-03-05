@@ -39,30 +39,15 @@ with open("mastodon_instances.txt", "r") as f:
         try:
             c.execute("delete from blocks where blocker = ?", (blocker,))
             json = loads(get(f"http://127.0.0.1:8069/{blocker}").text)
-            for blocked in json["reject"]:
-                if blocked["domain"].count("*") > 1:
-                    c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'reject'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
-                else:
-                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
-                    if c.fetchone() == (0,):
-                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
-                    c.execute("insert into blocks select ?, ?, ?, 'reject'", (blocker, blocked["domain"], blocked["reason"]))
-            for blocked in json["media_removal"]:
-                if blocked["domain"].count("*") > 1:
-                    c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'media_removal'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
-                else:
-                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
-                    if c.fetchone() == (0,):
-                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
-                    c.execute("insert into blocks select ?, ?, ?, 'media_removal'", (blocker, blocked["domain"], blocked["reason"]))
-            for blocked in json["federated_timeline_removal"]:
-                if blocked["domain"].count("*") > 1:
-                    c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'federated_timeline_removal'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
-                else:
-                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
-                    if c.fetchone() == (0,):
-                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
-                    c.execute("insert into blocks select ?, ?, ?, 'federated_timeline_removal'", (blocker, blocked["domain"], blocked["reason"]))
+            for block_level in ["reject", "media_removal", "federated_timeline_removal"]:
+                for blocked in json[block_level]:
+                    if blocked["domain"].count("*") > 1:
+                        c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, ?", (blocker, blocked["hash"], blocked["hash"], blocked['reason'], block_level))
+                    else:
+                        c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
+                        if c.fetchone() == (0,):
+                            c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
+                        c.execute("insert into blocks select ?, ?, ?, ?", (blocker, blocked["domain"], blocked["reason"], block_level))
             conn.commit()
         except:
             pass
