@@ -1,5 +1,6 @@
 from requests import get
 from json import loads
+from hashlib import sha256
 import sqlite3
 
 conn = sqlite3.connect("blocks.db")
@@ -13,8 +14,14 @@ with open("pleroma_instances.txt", "r") as f:
             json = loads(get(f"https://{blocker}/nodeinfo/2.1.json").text)
             for mrf in json["metadata"]["federation"]["mrf_simple"]:
                 for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
+                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
+                    if c.fetchone() == (0,):
+                        c.execute("insert into instances select ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest()))
                     c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, mrf))
             for blocked in json["metadata"]["federation"]["quarantined_instances"]:
+                c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
+                if c.fetchone() == (0,):
+                    c.execute("insert into instances select ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest()))
                 c.execute("insert into blocks select ?, ?, '', 'quarantined_instances'", (blocker, blocked))
             conn.commit()
             for mrf in json["metadata"]["federation"]["mrf_simple_info"]:
@@ -36,16 +43,25 @@ with open("mastodon_instances.txt", "r") as f:
                 if blocked["domain"].count("*") > 1:
                     c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'reject'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
                 else:
+                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
+                    if c.fetchone() == (0,):
+                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
                     c.execute("insert into blocks select ?, ?, ?, 'reject'", (blocker, blocked["domain"], blocked["reason"]))
             for blocked in json["media_removal"]:
                 if blocked["domain"].count("*") > 1:
                     c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'media_removal'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
                 else:
+                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
+                    if c.fetchone() == (0,):
+                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
                     c.execute("insert into blocks select ?, ?, ?, 'media_removal'", (blocker, blocked["domain"], blocked["reason"]))
             for blocked in json["federated_timeline_removal"]:
                 if blocked["domain"].count("*") > 1:
                     c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, 'federated_timeline_removal'", (blocker, blocked["hash"], blocked["hash"], blocked['reason']))
                 else:
+                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
+                    if c.fetchone() == (0,):
+                        c.execute("insert into instances select ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest()))
                     c.execute("insert into blocks select ?, ?, ?, 'federated_timeline_removal'", (blocker, blocked["domain"], blocked["reason"]))
             conn.commit()
         except:
