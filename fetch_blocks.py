@@ -18,6 +18,12 @@ with open("pleroma_instances.txt", "r") as f:
             for blocked in json["metadata"]["federation"]["quarantined_instances"]:
                 c.execute("insert into blocks select ?, ?, '', 'quarantined_instances'", (blocker, blocked))
             conn.commit()
+            for mrf in json["metadata"]["federation"]["mrf_simple_info"]:
+                for blocked in json["metadata"]["federation"]["mrf_simple_info"][mrf]:
+                    c.execute("update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?", (json["metadata"]["federation"]["mrf_simple_info"][mrf][blocked]["reason"], blocker, blocked, mrf))
+            for blocked in json["metadata"]["federation"]["quarantined_instances_info"]["quarantined_instances"]:
+                c.execute("update blocks set reason = ? where blocker = ? and blocked = ? and block_level = 'quarantined_instances'", (json["metadata"]["federation"]["quarantined_instances_info"]["quarantined_instances"][blocked]["reason"], blocker, blocked))
+            conn.commit()
         except:
             pass
 
