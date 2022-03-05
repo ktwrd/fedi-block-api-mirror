@@ -63,4 +63,4 @@ app.get("/:domain", (req, res) => {
         "media_removal": data.media_removal,
         "federated_timeline_removal": data.federated_timeline_removal,
     }));
-})
+});
