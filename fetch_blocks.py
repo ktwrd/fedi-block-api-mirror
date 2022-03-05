@@ -8,9 +8,8 @@ c = conn.cursor()
 with open("pleroma_instances.txt", "r") as f:
     while blocker := f.readline().strip():
         print(blocker)
-        c.execute("delete from blocks where blocker = ?", (blocker,))
-        conn.commit()
         try:
+            c.execute("delete from blocks where blocker = ?", (blocker,))
             json = loads(get(f"https://{blocker}/nodeinfo/2.1.json").text)
             for mrf in json["metadata"]["federation"]["mrf_simple"]:
                 for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
@@ -30,9 +29,8 @@ with open("pleroma_instances.txt", "r") as f:
 with open("mastodon_instances.txt", "r") as f:
     while blocker := f.readline().strip():
         print(blocker)
-        c.execute("delete from blocks where blocker = ?", (blocker,))
-        conn.commit()
         try:
+            c.execute("delete from blocks where blocker = ?", (blocker,))
             json = loads(get(f"http://127.0.0.1:8069/{blocker}").text)
             for blocked in json["reject"]:
                 if blocked["domain"].count("*") > 1:
