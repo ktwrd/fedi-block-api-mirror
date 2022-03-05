@@ -14,11 +14,15 @@ with open("pleroma_instances.txt", "r") as f:
             json = loads(get(f"https://{blocker}/nodeinfo/2.1.json").text)
             for mrf in json["metadata"]["federation"]["mrf_simple"]:
                 for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
+                    if blocked == "":
+                        continue
                     c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
                     if c.fetchone() == (0,):
                         c.execute("insert into instances select ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest()))
                     c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, mrf))
             for blocked in json["metadata"]["federation"]["quarantined_instances"]:
+                if blocked == "":
+                    continue
                 c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
                 if c.fetchone() == (0,):
                     c.execute("insert into instances select ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest()))
