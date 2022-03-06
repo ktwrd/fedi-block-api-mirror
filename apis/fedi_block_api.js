@@ -42,7 +42,7 @@ app.get("/blocker/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocker(
         domain,
-        result => res.status(200).send({result}),
+        result => res.status(200).send(result),
         err => res.status(500).send({"message": err}),
     );
 });
@@ -51,7 +51,7 @@ app.get("/blocked/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocked(
         domain,
-        result => res.status(200).send({result}),
+        result => res.status(200).send(result),
         err => res.status(500).send({"message": err}),
     );
 });
