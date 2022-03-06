@@ -1,5 +1,5 @@
 [Unit]
-Description=Mastodon API
+Description=Fedi block API
 
 [Service]
 Type=simple
@@ -7,4 +7,4 @@ Restart=always
 RestartSec=1
 User=
 WorkingDirectory=/fedi-block-api/apis
-ExecStart=node mastodon_api.js
+ExecStart=node fedi_block_api.js

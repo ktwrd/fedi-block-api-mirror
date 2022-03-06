@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "express": "^4.17.3",
+    "puppeteer": "^13.4.1",
+    "sqlite3": "^4.2.0",
+    "tar": "4.4.18"
+  }
+}

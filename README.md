@@ -3,34 +3,40 @@
 Used to see which instances block yours.
 
 ## software used:
+
 - python 3.10.2
 - node v17.6.0
 - yarn 1.22.17
 
-## how to use:
+## Installation
 
-Copy the preloaded database to the live database
+### Copy the preloaded database to the live database
 
-`cp blocks_preloaded.db blocks.db`
-
-Start the mastodon API
-
-Make sure to edit the `User` and `WorkingDirectory` of the service file accordingly.
-
+```bash
+cp blocks_preloaded.db blocks.db
 ```
-sudo cp services/mastodon_api.service /etc/systemd/system
-cd mastodon_api
+
+### Install the services
+
+Make sure to edit the `User` and `WorkingDirectory` in each service file accordingly.
+
+```bash
+sudo cp services/* /etc/systemd/system
+```
+
+### Install node packages
+
+```bash
+cd apis
 yarn install
+```
+
+### start the services
+
+```bash
 systemctl start mastodon_api
-```
-
-Fill the database with blocks.
-
-Make sure to edit the `User` and `WorkingDirectory` of the service file accordingly.
-
-```
-sudo cp services/fetch_blocks.service /etc/systemd/system
 systemctl start fetch_blocks
+systemctl start fedi_block_api
 ```
 
 ## License

@@ -56,6 +56,7 @@ app.listen(PORT, "127.0.0.1", () => console.log("API started on http://127.0.0.1
 app.get("/", (req, res) => {
     res.status(400).send({"message":"insert a domain"});
 });
+
 app.get("/:domain", (req, res) => {
     const {domain} = req.params;
     main(domain, data => res.status(200).send({
