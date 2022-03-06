@@ -9,13 +9,13 @@ const db = new sqlite3.Database("../blocks.db", sqlite3.OPEN_READONLY, err => {
 
 app.listen(PORT, "127.0.0.1", () => console.log("API started on http://127.0.0.1:"+PORT));
 app.get("/", (req, res) => {
-    res.status(400).send({"message":"use /blocker or /blocked endpoint"});
+    res.status(400).json({"message":"use /blocker or /blocked endpoint"});
 });
 app.get("/blocker", (req, res) => {
-    res.status(400).send({"message":"insert a domain"});
+    res.status(400).json({"message":"insert a domain"});
 });
 app.get("/blocked", (req, res) => {
-    res.status(400).send({"message":"insert a domain"});
+    res.status(400).json({"message":"insert a domain"});
 });
 
 function get_blocker(blocker, _callback, _err_callback) {
@@ -116,8 +116,8 @@ app.get("/blocker/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocker(
         domain,
-        result => res.status(200).send(result),
-        err => res.status(500).send({"message": err}),
+        result => res.status(200).json(result),
+        err => res.status(500).json({"message": err}),
     );
 });
 
@@ -125,7 +125,7 @@ app.get("/blocked/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocked(
         domain,
-        result => res.status(200).send(result),
-        err => res.status(500).send({"message": err}),
+        result => res.status(200).json(result),
+        err => res.status(500).json({"message": err}),
     );
 });

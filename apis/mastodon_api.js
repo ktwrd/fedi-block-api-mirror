@@ -54,12 +54,12 @@ async function main(domain, _callback) {
 
 app.listen(PORT, "127.0.0.1", () => console.log("API started on http://127.0.0.1:"+PORT));
 app.get("/", (req, res) => {
-    res.status(400).send({"message":"insert a domain"});
+    res.status(400).json({"message":"insert a domain"});
 });
 
 app.get("/:domain", (req, res) => {
     const {domain} = req.params;
-    main(domain, data => res.status(200).send({
+    main(domain, data => res.status(200).json({
         "reject": data.reject,
         "media_removal": data.media_removal,
         "federated_timeline_removal": data.federated_timeline_removal,
