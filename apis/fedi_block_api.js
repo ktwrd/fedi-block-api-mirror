@@ -19,22 +19,96 @@ app.get("/blocked", (req, res) => {
 });
 
 function get_blocker(blocker, _callback, _err_callback) {
-    db.all("select blocked, reason, block_level from blocks where blocker = ?", blocker, (err, result) => {
+    db.all("select blocked, block_level from blocks where blocker = ?", blocker, (err, result) => {
         if (err) {
             _err_callback(err)
             return console.error(err.message);
         }
-        _callback(result);
+        reject = [];
+        media_removal = [];
+        federated_timeline_removal = [];
+        media_nsfw = [];
+        quarantined_instances = [];
+        other = [];
+        result.map(block => {
+            switch(block.block_level) {
+                case "reject":
+                    reject.push(block.blocked);
+                    break;
+                case "media_removal":
+                    media_removal.push(block.blocked);
+                    break;
+                case "federated_timeline_removal":
+                    federated_timeline_removal.push(block.blocked);
+                    break;
+                case "media_nsfw":
+                    media_nsfw.push(block.blocked);
+                    break;
+                case "quarantined_instances":
+                    quarantined_instances.push(block.blocked);
+                    break;
+                default:
+                    other.push({
+                        "blocked": block.blocked,
+                        "block_level": block.block_level,
+                    });
+            }
+        });
+        _callback({
+            reject,
+            media_removal,
+            federated_timeline_removal,
+            media_nsfw,
+            quarantined_instances,
+            other,
+        });
     });
 }
 
 function get_blocked(blocked, _callback, _err_callback) {
-    db.all("select blocker, reason, block_level from blocks where blocked = ?", blocked, (err, result) => {
+    db.all("select blocker, block_level from blocks where blocked = ?", blocked, (err, result) => {
         if (err) {
             _err_callback(err);
             return console.error(err.message);
         }
-        _callback(result);
+        reject = [];
+        media_removal = [];
+        federated_timeline_removal = [];
+        media_nsfw = [];
+        quarantined_instances = [];
+        other = [];
+        result.map(block => {
+            switch(block.block_level) {
+                case "reject":
+                    reject.push(block.blocker);
+                    break;
+                case "media_removal":
+                    media_removal.push(block.blocker);
+                    break;
+                case "federated_timeline_removal":
+                    federated_timeline_removal.push(block.blocker);
+                    break;
+                case "media_nsfw":
+                    media_nsfw.push(block.blocker);
+                    break;
+                case "quarantined_instances":
+                    quarantined_instances.push(block.blocker);
+                    break;
+                default:
+                    other.push({
+                        "blocker": block.blocker,
+                        "block_level": block.block_level,
+                    });
+            }
+        });
+        _callback({
+            reject,
+            media_removal,
+            federated_timeline_removal,
+            media_nsfw,
+            quarantined_instances,
+            other,
+        });
     });
 }
 
