@@ -5,8 +5,8 @@ Used to see which instances block yours.
 ## software used:
 
 - python 3.10.2
-- node v17.6.0
-- yarn 1.22.17
+- [node v17.6.0](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions)
+- [yarn 1.22.17](https://classic.yarnpkg.com/en/docs/install#debian-stable)
 
 ## Installation
 
@@ -38,6 +38,10 @@ systemctl start mastodon_api
 systemctl start fetch_blocks
 systemctl start fedi_block_api
 ```
+
+## Try it out
+
+https://api.chizu.love/blocked/
 
 ## License
 
