@@ -21,8 +21,9 @@ app.get("/blocked", (req, res) => {
 function get_blocker(blocker, _callback, _err_callback) {
     db.all("select blocked, block_level from blocks where blocker = ?", blocker, (err, result) => {
         if (err) {
-            _err_callback(err)
-            return console.error(err.message);
+            _err_callback(err);
+            console.log(err.message);
+            return;
         }
         reject = [];
         media_removal = [];
@@ -69,7 +70,8 @@ function get_blocked(blocked, _callback, _err_callback) {
     db.all("select blocker, block_level from blocks where blocked = ?", blocked, (err, result) => {
         if (err) {
             _err_callback(err);
-            return console.error(err.message);
+            console.log(err.message);
+            return;
         }
         reject = [];
         media_removal = [];
