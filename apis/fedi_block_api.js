@@ -9,13 +9,28 @@ const db = new sqlite3.Database("../blocks.db", sqlite3.OPEN_READONLY, err => {
 
 app.listen(PORT, "127.0.0.1", () => console.log("API started on http://127.0.0.1:"+PORT));
 app.get("/", (req, res) => {
-    res.status(400).json({"message":"use /blocker or /blocked endpoint"});
+    res.status(400).json({"message":"use /blocker, /blocked or /info endpoint"});
 });
 app.get("/blocker", (req, res) => {
     res.status(400).json({"message":"insert a domain"});
 });
 app.get("/blocked", (req, res) => {
     res.status(400).json({"message":"insert a domain"});
+});
+
+app.get("/info", (req, res) => {
+    db.all("select (select count(domain) from instances) as known, (select count(domain) from instances where software in ('pleroma', 'mastodon')) as indexed, (select count(blocker) from blocks) as blocks", (err, result) => {
+        if (err) {
+            res.status(500).json({"message": err});
+            console.log(err.message);
+            return;
+        }
+        res.status(200).json({
+            "known_instances": result[0]["known"],
+            "indexed_instances": result[0]["indexed"],
+            "blocks_recorded": result[0]["blocks"],
+        });
+    });
 });
 
 function get_blocker(blocker, _callback, _err_callback) {
