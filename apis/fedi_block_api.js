@@ -45,7 +45,13 @@ function get_blocker(blocker, _callback, _err_callback) {
         federated_timeline_removal = [];
         media_nsfw = [];
         quarantined_instances = [];
-        other = [];
+        report_removal = [];
+        followers_only = [];
+        accept = [];
+        avatar_removal = [];
+        banner_removal = [];
+        reject_deletes = [];
+
         result.map(block => {
             switch(block.block_level) {
                 case "reject":
@@ -63,11 +69,24 @@ function get_blocker(blocker, _callback, _err_callback) {
                 case "quarantined_instances":
                     quarantined_instances.push(block.blocked);
                     break;
-                default:
-                    other.push({
-                        "blocked": block.blocked,
-                        "block_level": block.block_level,
-                    });
+                case "report_removal":
+                    report_removal.push(block.blocked);
+                    break;
+                case "followers_only":
+                    followers_only.push(block.blocked);
+                    break;
+                case "accept":
+                    accept.push(block.blocked);
+                    break;
+                case "avatar_removal":
+                    avatar_removal.push(block.blocked);
+                    break;
+                case "banner_removal":
+                    banner_removal.push(block.blocked);
+                    break;
+                case "reject_deletes":
+                    reject_deletes.push(block.blocked);
+                    break;
             }
         });
         _callback({
@@ -76,7 +95,12 @@ function get_blocker(blocker, _callback, _err_callback) {
             federated_timeline_removal,
             media_nsfw,
             quarantined_instances,
-            other,
+            report_removal,
+            followers_only,
+            accept,
+            avatar_removal,
+            banner_removal,
+            reject_deletes,
         });
     });
 }
@@ -93,7 +117,13 @@ function get_blocked(blocked, _callback, _err_callback) {
         federated_timeline_removal = [];
         media_nsfw = [];
         quarantined_instances = [];
-        other = [];
+        report_removal = [];
+        followers_only = [];
+        accept = [];
+        avatar_removal = [];
+        banner_removal = [];
+        reject_deletes = [];
+
         result.map(block => {
             switch(block.block_level) {
                 case "reject":
@@ -111,11 +141,24 @@ function get_blocked(blocked, _callback, _err_callback) {
                 case "quarantined_instances":
                     quarantined_instances.push(block.blocker);
                     break;
-                default:
-                    other.push({
-                        "blocker": block.blocker,
-                        "block_level": block.block_level,
-                    });
+                case "report_removal":
+                    report_removal.push(block.blocker);
+                    break;
+                case "followers_only":
+                    followers_only.push(block.blocker);
+                    break;
+                case "accept":
+                    accept.push(block.blocker);
+                    break;
+                case "avatar_removal":
+                    avatar_removal.push(block.blocker);
+                    break;
+                case "banner_removal":
+                    banner_removal.push(block.blocker);
+                    break;
+                case "reject_deletes":
+                    reject_deletes.push(block.blocker);
+                    break;
             }
         });
         _callback({
@@ -124,7 +167,12 @@ function get_blocked(blocked, _callback, _err_callback) {
             federated_timeline_removal,
             media_nsfw,
             quarantined_instances,
-            other,
+            report_removal,
+            followers_only,
+            accept,
+            avatar_removal,
+            banner_removal,
+            reject_deletes,
         });
     });
 }
