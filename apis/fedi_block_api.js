@@ -29,6 +29,7 @@ app.get("/info", (req, res) => {
             "known_instances": result[0]["known"],
             "indexed_instances": result[0]["indexed"],
             "blocks_recorded": result[0]["blocks"],
+            "source_code": "https://gitlab.com/EnjuAihara/fedi-block-api",
         });
     });
 });
