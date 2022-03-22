@@ -1,6 +1,7 @@
 const app = require("express")();
 const sqlite3 = require('sqlite3').verbose();
 const PORT = 8070;
+const base_url = ""
 
 const db = new sqlite3.Database("../blocks.db", sqlite3.OPEN_READONLY, err => {
     if (err)
@@ -8,17 +9,17 @@ const db = new sqlite3.Database("../blocks.db", sqlite3.OPEN_READONLY, err => {
 });
 
 app.listen(PORT, "127.0.0.1", () => console.log("API started on http://127.0.0.1:"+PORT));
-app.get("/", (req, res) => {
+app.get(base_url+"/", (req, res) => {
     res.status(400).json({"message":"use /blocker, /blocked or /info endpoint"});
 });
-app.get("/blocker", (req, res) => {
+app.get(base_url+"/blocker", (req, res) => {
     res.status(400).json({"message":"insert a domain"});
 });
-app.get("/blocked", (req, res) => {
+app.get(base_url+"/blocked", (req, res) => {
     res.status(400).json({"message":"insert a domain"});
 });
 
-app.get("/info", (req, res) => {
+app.get(base_url+"/info", (req, res) => {
     db.all("select (select count(domain) from instances) as known, (select count(domain) from instances where software in ('pleroma', 'mastodon')) as indexed, (select count(blocker) from blocks) as blocks", (err, result) => {
         if (err) {
             res.status(500).json({"message": err});
@@ -178,7 +179,7 @@ function get_blocked(blocked, _callback, _err_callback) {
     });
 }
 
-app.get("/blocker/:domain", (req, res) => {
+app.get(base_url+"/blocker/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocker(
         domain,
@@ -187,7 +188,7 @@ app.get("/blocker/:domain", (req, res) => {
     );
 });
 
-app.get("/blocked/:domain", (req, res) => {
+app.get(base_url+"/blocked/:domain", (req, res) => {
     const {domain} = req.params;
     get_blocked(
         domain,
