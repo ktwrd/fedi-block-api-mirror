@@ -41,7 +41,7 @@ systemctl start fedi_block_api
 
 ## Try it out
 
-https://api.chizu.love/blocked/
+https://chizu.love/fedi-block-api/api
 
 ## License
 
