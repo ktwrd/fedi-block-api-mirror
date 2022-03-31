@@ -58,8 +58,8 @@ for instance in c.fetchall():
                     for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
                         if blocked == "":
                             continue
-                        c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
-                        if c.fetchone() == (0,):
+                        c.execute("select domain from instances where domain = ?", (blocked,))
+                        if c.fetchone() == None:
                             c.execute("insert into instances select ?, ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest(), get_type(blocked)))
                         c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, mrf))
             # Quarantined Instances
@@ -67,8 +67,8 @@ for instance in c.fetchall():
                 for blocked in json["metadata"]["federation"]["quarantined_instances"]:
                     if blocked == "":
                         continue
-                    c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked,))
-                    if c.fetchone() == (0,):
+                    c.execute("select domain from instances where domain = ?", (blocked,))
+                    if c.fetchone() == None:
                         c.execute("insert into instances select ?, ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest(), get_type(blocked)))
                     c.execute("insert into blocks select ?, ?, '', 'quarantined_instances'", (blocker, blocked))
             conn.commit()
@@ -94,8 +94,8 @@ for instance in c.fetchall():
                     if blocked["domain"].count("*") > 1:
                         c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, ?", (blocker, blocked["hash"], blocked["hash"], blocked['reason'], block_level))
                     else:
-                        c.execute("select case when ? in (select domain from instances) then 1 else 0 end", (blocked["domain"],))
-                        if c.fetchone() == (0,):
+                        c.execute("select domain from instances where domain = ?", (blocked["domain"],))
+                        if c.fetchone() == None:
                             c.execute("insert into instances select ?, ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest(), get_type(blocked["domain"])))
                         c.execute("insert into blocks select ?, ?, ?, ?", (blocker, blocked["domain"], blocked["reason"], block_level))
             conn.commit()
