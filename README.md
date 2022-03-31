@@ -14,6 +14,7 @@ sudo mkdir -p /opt/fedi-block-api
 sudo chown -R fba:fba /opt/fedi-block-api
 sudo -Hu fba git clone https://gitlab.com/EnjuAihara/fedi-block-api.git /opt/fedi-block-api
 cd /opt/fedi-block-api
+sudo -Hu fba pip3 install -r requirements.txt
 sudo -Hu fba cp blocks_preloaded.db blocks.db
 ```
 
