@@ -6,8 +6,8 @@ Type=simple
 Restart=on-failure
 RestartSec=10
 User=fba
-WorkingDirectory=/opt/fedi-block-api/apis
-ExecStart=node fedi_block_api.js
+WorkingDirectory=/opt/fedi-block-api
+ExecStart=uvicorn api:app --port 8069
 
 [Install]
 WantedBy=multi-user.target

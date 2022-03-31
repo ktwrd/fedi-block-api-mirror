@@ -5,8 +5,6 @@ Used to see which instances block yours.
 ## software used:
 
 - python 3.10.2
-- [node v17.6.0](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions)
-- [yarn 1.22.17](https://classic.yarnpkg.com/en/docs/install#debian-stable)
 
 ## Installation
 
@@ -23,13 +21,6 @@ sudo -Hu fba cp blocks_preloaded.db blocks.db
 
 ```bash
 sudo cp services/* /etc/systemd/system
-```
-
-### Install node packages
-
-```bash
-cd apis
-sudo -Hu fba yarn install
 ```
 
 ### start the services
