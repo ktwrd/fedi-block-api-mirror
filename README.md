@@ -34,7 +34,6 @@ yarn install
 ### start the services
 
 ```bash
-systemctl start mastodon_api
 systemctl start fetch_blocks
 systemctl start fedi_block_api
 ```

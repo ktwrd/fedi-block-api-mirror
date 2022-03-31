@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "express": "^4.17.3",
-    "puppeteer": "^13.4.1",
     "sqlite3": "^5.0.2"
   }
 }
