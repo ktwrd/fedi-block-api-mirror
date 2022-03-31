@@ -3,7 +3,7 @@ from json import loads
 from hashlib import sha256
 import sqlite3
 
-def get_type(domain):
+def get_type(domain: str) -> str:
     try:
         res = get("https://"+domain, timeout=5)
         if "pleroma" in res.text.lower():
