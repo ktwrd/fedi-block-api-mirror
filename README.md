@@ -10,15 +10,16 @@ Used to see which instances block yours.
 
 ## Installation
 
-### Copy the preloaded database to the live database
-
 ```bash
-cp blocks_preloaded.db blocks.db
+sudo useradd -m fba
+sudo mkdir -p /opt/fedi-block-api
+sudo chown -R fba:fba /opt/fedi-block-api
+sudo -Hu fba git clone https://gitlab.com/EnjuAihara/fedi-block-api.git /opt/fedi-block-api
+cd /opt/fedi-block-api
+sudo -Hu fba cp blocks_preloaded.db blocks.db
 ```
 
 ### Install the services
-
-Make sure to edit the `User` and `WorkingDirectory` in each service file accordingly.
 
 ```bash
 sudo cp services/* /etc/systemd/system
@@ -28,14 +29,14 @@ sudo cp services/* /etc/systemd/system
 
 ```bash
 cd apis
-yarn install
+sudo -Hu fba yarn install
 ```
 
 ### start the services
 
 ```bash
-systemctl start fetch_blocks
-systemctl start fedi_block_api
+systemctl enable --now fetch_blocks
+systemctl enable --now fedi_block_api
 ```
 
 ## Try it out

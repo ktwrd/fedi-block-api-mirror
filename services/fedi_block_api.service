@@ -3,8 +3,11 @@ Description=Fedi block API
 
 [Service]
 Type=simple
-Restart=always
-RestartSec=1
-User=
-WorkingDirectory=/fedi-block-api/apis
+Restart=on-failure
+RestartSec=10
+User=fba
+WorkingDirectory=/opt/fedi-block-api/apis
 ExecStart=node fedi_block_api.js
+
+[Install]
+WantedBy=multi-user.target
