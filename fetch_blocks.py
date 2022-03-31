@@ -45,9 +45,8 @@ c = conn.cursor()
 
 c.execute("select domain, software from instances where software in ('pleroma', 'mastodon')")
 
-for instance in c.fetchall():
-    if instance[1] == "pleroma":
-        blocker = instance[0]
+for blocker, software in c.fetchall():
+    if software == "pleroma":
         print(blocker)
         try:
             # Blocks
@@ -83,19 +82,21 @@ for instance in c.fetchall():
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
-    elif instance[1] == "mastodon":
-        blocker = instance[0]
+    elif software == "mastodon":
         print(blocker)
         try:
             c.execute("delete from blocks where blocker = ?", (blocker,))
             json = get_mastodon_blocks(blocker)
-            for block_level in ["reject", "media_removal", "federated_timeline_removal"]:
+            for block_level in json:
                 for blocked in json[block_level]:
                     if blocked["domain"].count("*") > 1:
+                        # instance is censored, check if domain of hash is known, if not, insert the hash
                         c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, ?", (blocker, blocked["hash"], blocked["hash"], blocked['reason'], block_level))
                     else:
+                        # instance is not censored
                         c.execute("select domain from instances where domain = ?", (blocked["domain"],))
                         if c.fetchone() == None:
+                            # if instance not known, add it
                             c.execute("insert into instances select ?, ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest(), get_type(blocked["domain"])))
                         c.execute("insert into blocks select ?, ?, ?, ?", (blocker, blocked["domain"], blocked["reason"], block_level))
             conn.commit()
