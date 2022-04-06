@@ -3,6 +3,9 @@ from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup
 
+headers = {
+    "user-agent": "fedi-block-api (https://gitlab.com/EnjuAihara/fedi-block-api)"
+}
 
 def get_mastodon_blocks(domain: str) -> dict:
     try:
@@ -10,7 +13,7 @@ def get_mastodon_blocks(domain: str) -> dict:
         media_removal = []
         federated_timeline_removal = []
 
-        doc = BeautifulSoup(get(f"https://{domain}/about/more").text, "html.parser")
+        doc = BeautifulSoup(get(f"https://{domain}/about/more", headers=headers, timeout=5).text, "html.parser")
         for header in doc.find_all("h3"):
             if header.text == "Suspended servers":
                 for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
@@ -27,7 +30,7 @@ def get_mastodon_blocks(domain: str) -> dict:
 
 def get_type(domain: str) -> str:
     try:
-        res = get("https://"+domain, timeout=5)
+        res = get("https://"+domain, headers=headers, timeout=5)
         if "pleroma" in res.text.lower():
             print("pleroma")
             return "pleroma"
@@ -42,7 +45,8 @@ def get_type(domain: str) -> str:
 conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
-c.execute("select domain, software from instances where software in ('pleroma', 'mastodon')")
+#c.execute("select domain, software from instances where software in ('pleroma', 'mastodon')")
+c.execute("select 'chizu.love', 'pleroma'")
 
 for blocker, software in c.fetchall():
     if software == "pleroma":
@@ -50,7 +54,7 @@ for blocker, software in c.fetchall():
         try:
             # Blocks
             c.execute("delete from blocks where blocker = ?", (blocker,))
-            json = get(f"https://{blocker}/nodeinfo/2.1.json").json()
+            json = get(f"https://{blocker}/nodeinfo/2.1.json", headers=headers, timeout=5).json()
             if "mrf_simple" in json["metadata"]["federation"]:
                 for mrf in json["metadata"]["federation"]["mrf_simple"]:
                     for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
