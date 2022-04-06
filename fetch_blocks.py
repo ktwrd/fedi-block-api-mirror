@@ -1,5 +1,4 @@
 from requests import get
-from json import loads
 from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup
@@ -51,7 +50,7 @@ for blocker, software in c.fetchall():
         try:
             # Blocks
             c.execute("delete from blocks where blocker = ?", (blocker,))
-            json = loads(get(f"https://{blocker}/nodeinfo/2.1.json").text)
+            json = get(f"https://{blocker}/nodeinfo/2.1.json").json()
             if "mrf_simple" in json["metadata"]["federation"]:
                 for mrf in json["metadata"]["federation"]["mrf_simple"]:
                     for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
