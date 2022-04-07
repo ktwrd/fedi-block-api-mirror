@@ -45,8 +45,7 @@ def get_type(domain: str) -> str:
 conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
-#c.execute("select domain, software from instances where software in ('pleroma', 'mastodon')")
-c.execute("select 'chizu.love', 'pleroma'")
+c.execute("select domain, software from instances where software in ('pleroma', 'mastodon')")
 
 for blocker, software in c.fetchall():
     if software == "pleroma":
