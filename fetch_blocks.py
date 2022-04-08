@@ -30,17 +30,17 @@ def get_mastodon_blocks(domain: str) -> dict:
 
 def get_type(domain: str) -> str:
     try:
-        res = get("https://"+domain, headers=headers, timeout=5)
-        if "pleroma" in res.text.lower():
-            print("pleroma")
-            return "pleroma"
-        elif "mastodon" in res.text.lower():
-            print("mastodon")
+        res = get(f"https://{domain}/nodeinfo/2.1.json", headers=headers, timeout=5)
+        if res.status_code == 404:
+            res = get(f"https://{domain}/nodeinfo/2.0.json", headers=headers, timeout=5)
+        if res.ok:
+            return res.json()["software"]["name"]
+        elif res.status_code == 404:
+            res = get(f"https://{domain}/api/v1/instance", headers=headers, timeout=5)
+        if res.ok:
             return "mastodon"
-        return ""
-    except Exception as e:
-        print("error:", e, domain)
-        return ""
+    except:
+        return None
 
 conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
