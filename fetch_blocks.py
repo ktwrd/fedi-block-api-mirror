@@ -8,24 +8,36 @@ headers = {
 }
 
 def get_mastodon_blocks(domain: str) -> dict:
-    try:
-        reject = []
-        media_removal = []
-        federated_timeline_removal = []
+    blocks = {
+        "Suspended servers": [],
+        "Filtered media": [],
+        "Limited servers": [],
+        "Silenced servers": [],
+    }
 
-        doc = BeautifulSoup(get(f"https://{domain}/about/more", headers=headers, timeout=5).text, "html.parser")
-        for header in doc.find_all("h3"):
-            if header.text == "Suspended servers":
-                for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
-                    reject.append({"domain": line.find("span").text, "hash": line.find("span")["title"][9:], "reason": line.find_all("td")[1].text.strip()})
-            elif header.text == "Filtered media":
-                for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
-                    media_removal.append({"domain": line.find("span").text, "hash": line.find("span")["title"][9:], "reason": line.find_all("td")[1].text.strip()})
-            elif header.text in ["Limited servers", "Silenced servers"]:
-                for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
-                    federated_timeline_removal.append({"domain": line.find("span").text, "hash": line.find("span")["title"][9:], "reason": line.find_all("td")[1].text.strip()})
-    finally:
-        return {"reject": reject, "media_removal": media_removal, "federated_timeline_removal": federated_timeline_removal}
+    try:
+        doc = BeautifulSoup(
+            get(f"https://{domain}/about/more", headers=headers, timeout=5).text,
+            "html.parser",
+        )
+    except:
+        return {}
+        
+    for header in doc.find_all("h3"):
+        for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
+            if header.text in blocks:
+                blocks[header.text].append(
+                    {
+                        "domain": line.find("span").text,
+                        "hash": line.find("span")["title"][9:],
+                        "reason": line.find_all("td")[1].text.strip(),
+                    }
+                )
+    return {
+        "reject": blocks["Suspended servers"],
+        "media_removal": blocks["Filtered media"],
+        "federated_timeline_removal": blocks["Limited servers"] + blocks["Silenced servers"],
+    }
 
 
 def get_type(domain: str) -> str:
