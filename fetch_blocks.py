@@ -39,6 +39,8 @@ def get_mastodon_blocks(domain: str) -> dict:
         "federated_timeline_removal": blocks["Limited servers"] + blocks["Silenced servers"],
     }
 
+def get_hash(domain: str) -> str:
+    return sha256(domain.encode("utf-8")).hexdigest()
 
 def get_type(domain: str) -> str:
     try:
@@ -73,7 +75,7 @@ for blocker, software in c.fetchall():
                             continue
                         c.execute("select domain from instances where domain = ?", (blocked,))
                         if c.fetchone() == None:
-                            c.execute("insert into instances select ?, ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest(), get_type(blocked)))
+                            c.execute("insert into instances select ?, ?, ?", (blocked, get_hash(blocked), get_type(blocked)))
                         c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, mrf))
             # Quarantined Instances
             if "quarantined_instances" in json["metadata"]["federation"]:
@@ -82,7 +84,7 @@ for blocker, software in c.fetchall():
                         continue
                     c.execute("select domain from instances where domain = ?", (blocked,))
                     if c.fetchone() == None:
-                        c.execute("insert into instances select ?, ?, ?", (blocked, sha256(bytes(blocked, "utf-8")).hexdigest(), get_type(blocked)))
+                        c.execute("insert into instances select ?, ?, ?", (blocked, get_hash(blocked), get_type(blocked)))
                     c.execute("insert into blocks select ?, ?, '', 'quarantined_instances'", (blocker, blocked))
             conn.commit()
             # Reasons
@@ -111,7 +113,7 @@ for blocker, software in c.fetchall():
                         c.execute("select domain from instances where domain = ?", (blocked["domain"],))
                         if c.fetchone() == None:
                             # if instance not known, add it
-                            c.execute("insert into instances select ?, ?, ?", (blocked["domain"], sha256(bytes(blocked["domain"], "utf-8")).hexdigest(), get_type(blocked["domain"])))
+                            c.execute("insert into instances select ?, ?, ?", (blocked["domain"], get_hash(blocked["domain"]), get_type(blocked["domain"])))
                         c.execute("insert into blocks select ?, ?, ?, ?", (blocker, blocked["domain"], blocked["reason"], block_level))
             conn.commit()
         except Exception as e:
