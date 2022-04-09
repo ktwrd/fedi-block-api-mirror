@@ -91,18 +91,25 @@ for blocker, software in c.fetchall():
         try:
             c.execute("delete from blocks where blocker = ?", (blocker,))
             json = get_mastodon_blocks(blocker)
-            for block_level in json:
-                for blocked in json[block_level]:
-                    if blocked["domain"].count("*") > 1:
-                        # instance is censored, check if domain of hash is known, if not, insert the hash
-                        c.execute("insert into blocks select ?, ifnull((select domain from instances where hash = ?), ?), ?, ?", (blocker, blocked["hash"], blocked["hash"], blocked['reason'], block_level))
-                    else:
-                        # instance is not censored
-                        c.execute("select domain from instances where domain = ?", (blocked["domain"],))
+            for block_level, blocks in json.items():
+                for instance in blocks:
+                    blocked, blocked_hash, reason = instance.values()
+                    if blocked.count("*") <= 1:
+                        c.execute("select hash from instances where hash = ?", (blocked_hash,))
                         if c.fetchone() == None:
-                            # if instance not known, add it
-                            c.execute("insert into instances select ?, ?, ?", (blocked["domain"], get_hash(blocked["domain"]), get_type(blocked["domain"])))
-                        c.execute("insert into blocks select ?, ?, ?, ?", (blocker, blocked["domain"], blocked["reason"], block_level))
+                            c.execute(
+                                "insert into instances select ?, ?, ?",
+                                (blocked, get_hash(blocked), get_type(blocked)),
+                            )
+                    c.execute(
+                        "insert into blocks select ?, ?, ?, ?",
+                        (
+                            blocker,
+                            blocked if blocked.count("*") <= 1 else blocked_hash,
+                            reason,
+                            block_level,
+                        ),
+                    )
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
