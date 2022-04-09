@@ -67,34 +67,22 @@ for blocker, software in c.fetchall():
         try:
             # Blocks
             c.execute("delete from blocks where blocker = ?", (blocker,))
-            json = get(f"https://{blocker}/nodeinfo/2.1.json", headers=headers, timeout=5).json()
-            if "mrf_simple" in json["metadata"]["federation"]:
-                for mrf in json["metadata"]["federation"]["mrf_simple"]:
-                    for blocked in json["metadata"]["federation"]["mrf_simple"][mrf]:
+            federation = get(f"https://{blocker}/nodeinfo/2.1.json", headers=headers, timeout=5).json()["metadata"]["federation"]
+            if "mrf_simple" in federation:
+                for block_level, blocks in (federation["mrf_simple"] | {"quarantined_instances": federation["quarantined_instances"]}).items():
+                    for blocked in blocks:
                         if blocked == "":
                             continue
                         c.execute("select domain from instances where domain = ?", (blocked,))
                         if c.fetchone() == None:
                             c.execute("insert into instances select ?, ?, ?", (blocked, get_hash(blocked), get_type(blocked)))
-                        c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, mrf))
-            # Quarantined Instances
-            if "quarantined_instances" in json["metadata"]["federation"]:
-                for blocked in json["metadata"]["federation"]["quarantined_instances"]:
-                    if blocked == "":
-                        continue
-                    c.execute("select domain from instances where domain = ?", (blocked,))
-                    if c.fetchone() == None:
-                        c.execute("insert into instances select ?, ?, ?", (blocked, get_hash(blocked), get_type(blocked)))
-                    c.execute("insert into blocks select ?, ?, '', 'quarantined_instances'", (blocker, blocked))
+                        c.execute("insert into blocks select ?, ?, '', ?", (blocker, blocked, block_level))
             conn.commit()
             # Reasons
-            if "mrf_simple_info" in json["metadata"]["federation"]:
-                for mrf in json["metadata"]["federation"]["mrf_simple_info"]:
-                    for blocked in json["metadata"]["federation"]["mrf_simple_info"][mrf]:
-                        c.execute("update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?", (json["metadata"]["federation"]["mrf_simple_info"][mrf][blocked]["reason"], blocker, blocked, mrf))
-            if "quarantined_instances_info" in json["metadata"]["federation"]:
-                for blocked in json["metadata"]["federation"]["quarantined_instances_info"]["quarantined_instances"]:
-                    c.execute("update blocks set reason = ? where blocker = ? and blocked = ? and block_level = 'quarantined_instances'", (json["metadata"]["federation"]["quarantined_instances_info"]["quarantined_instances"][blocked]["reason"], blocker, blocked))
+            if "mrf_simple_info" in federation:
+                for block_level, info in (federation["mrf_simple_info"] | federation["quarantined_instances_info"] if "quarantined_instances_info" in federation else {}).items():
+                    for blocked, reason in info.items():
+                        c.execute("update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?", (reason["reason"], blocker, blocked, block_level))
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
