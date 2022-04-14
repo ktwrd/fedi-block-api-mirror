@@ -22,7 +22,7 @@ def info():
 def blocked(domain: str):
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
-    c.execute("select blocker, block_level from blocks where blocked = ?", (domain,))
+    c.execute("select blocker, block_level, reason from blocks where blocked = ?", (domain,))
     blocks = c.fetchall()
     conn.close()
 
@@ -40,8 +40,23 @@ def blocked(domain: str):
         "reject_deletes": [],
     }
 
-    for domain, block_level in blocks:
-        result[block_level].append(domain)
+    reasons = {
+        "reject": {},
+        "media_removal": {},
+        "federated_timeline_removal": {},
+        "media_nsfw": {},
+        "quarantined_instances": {},
+        "report_removal": {},
+        "followers_only": {},
+        "accept": {},
+        "avatar_removal": {},
+        "banner_removal": {},
+        "reject_deletes": {},
+    }
 
-    return result
+    for domain, block_level, reason in blocks:
+        result[block_level].append(domain)
+        reasons[block_level][domain] = reason
+
+    return result | {"reasons": reasons}
 
