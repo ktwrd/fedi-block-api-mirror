@@ -26,37 +26,20 @@ def blocked(domain: str):
     blocks = c.fetchall()
     conn.close()
 
-    result = {
-        "reject": [],
-        "media_removal": [],
-        "federated_timeline_removal": [],
-        "media_nsfw": [],
-        "quarantined_instances": [],
-        "report_removal": [],
-        "followers_only": [],
-        "accept": [],
-        "avatar_removal": [],
-        "banner_removal": [],
-        "reject_deletes": [],
-    }
-
-    reasons = {
-        "reject": {},
-        "media_removal": {},
-        "federated_timeline_removal": {},
-        "media_nsfw": {},
-        "quarantined_instances": {},
-        "report_removal": {},
-        "followers_only": {},
-        "accept": {},
-        "avatar_removal": {},
-        "banner_removal": {},
-        "reject_deletes": {},
-    }
+    result = {}
+    reasons = {}
 
     for domain, block_level, reason in blocks:
-        result[block_level].append(domain)
-        reasons[block_level][domain] = reason
+        if block_level in result:
+            result[block_level].append(domain)
+        else:
+            result[block_level] = [domain]
+            
+        if reason != "":
+            if block_level in reasons:
+                reasons[block_level][domain] = reason
+            else:
+                reasons[block_level] = {domain: reason}
 
-    return result | {"reasons": reasons}
+    return {"blocks": result, "reasons": reasons}
 
