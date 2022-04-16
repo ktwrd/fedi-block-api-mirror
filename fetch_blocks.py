@@ -75,7 +75,6 @@ for blocker, software in c.fetchall():
         print(blocker)
         try:
             # Blocks
-            c.execute("delete from blocks where blocker = ?", (blocker,))
             federation = get(
                 f"https://{blocker}/nodeinfo/2.1.json", headers=headers, timeout=5
             ).json()["metadata"]["federation"]
@@ -96,9 +95,14 @@ for blocker, software in c.fetchall():
                                 (blocked, get_hash(blocked), get_type(blocked)),
                             )
                         c.execute(
-                            "insert into blocks select ?, ?, '', ?",
+                            "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
                             (blocker, blocked, block_level),
                         )
+                        if c.fetchone() == None:
+                            c.execute(
+                                "insert into blocks select ?, ?, '', ?",
+                                (blocker, blocked, block_level),
+                            )
             conn.commit()
             # Reasons
             if "mrf_simple_info" in federation:
@@ -119,7 +123,6 @@ for blocker, software in c.fetchall():
     elif software == "mastodon":
         print(blocker)
         try:
-            c.execute("delete from blocks where blocker = ?", (blocker,))
             json = get_mastodon_blocks(blocker)
             for block_level, blocks in json.items():
                 for instance in blocks:
@@ -134,14 +137,19 @@ for blocker, software in c.fetchall():
                                 (blocked, get_hash(blocked), get_type(blocked)),
                             )
                     c.execute(
-                        "insert into blocks select ?, ?, ?, ?",
-                        (
-                            blocker,
-                            blocked if blocked.count("*") <= 1 else blocked_hash,
-                            reason,
-                            block_level,
-                        ),
+                        "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
+                        (blocker, blocked, block_level),
                     )
+                    if c.fetchone() == None:
+                        c.execute(
+                            "insert into blocks select ?, ?, ?, ?",
+                            (
+                                blocker,
+                                blocked if blocked.count("*") <= 1 else blocked_hash,
+                                reason,
+                                block_level,
+                            ),
+                        )
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
