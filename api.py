@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, responses
 import sqlite3
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
@@ -55,6 +55,8 @@ def blocked(domain: str = None):
 
 @app.get(base_url+"/")
 def index(request: Request, domain: str = None):
+    if domain == "":
+        return responses.RedirectResponse("/")
     blocks = get(f"http://127.0.0.1:8069{base_url}/api?domain={domain}")
     info = None
     if domain == None:
