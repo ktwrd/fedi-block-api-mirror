@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 import sqlite3
+from hashlib import sha256
 
 base_url = ""
 app = FastAPI(docs_url=base_url+"/docs", redoc_url=base_url+"/redoc")
+
+def get_hash(domain: str) -> str:
+    return sha256(domain.encode("utf-8")).hexdigest()
 
 @app.get(base_url+"/info")
 def info():
@@ -23,7 +27,7 @@ def blocked(domain: str):
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
     wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
-    c.execute("select blocker, block_level, reason from blocks where blocked = ? or blocked = ?", (domain, wildchar))
+    c.execute("select blocker, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ?", (domain, wildchar, get_hash(domain)))
     blocks = c.fetchall()
     conn.close()
 
