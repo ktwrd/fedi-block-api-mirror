@@ -16,7 +16,9 @@ sudo -Hu fba git clone https://gitlab.com/EnjuAihara/fedi-block-api.git /opt/fed
 cd /opt/fedi-block-api
 sudo -Hu fba pip3 install -r requirements.txt
 sudo -Hu fba cp blocks_preloaded.db blocks.db
+sudo -Hu fba cp config.defaults.json config.json
 ```
+
 
 ### Install the services
 
