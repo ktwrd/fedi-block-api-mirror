@@ -55,10 +55,10 @@ def blocked(domain: str = None):
 
 @app.get(base_url+"/")
 def index(request: Request, domain: str = None):
-    blocks = get(f"http://127.0.0.1:8069/api?domain={domain}")
+    blocks = get(f"http://127.0.0.1:8069{base_url}/api?domain={domain}")
     info = None
     if domain == None:
-        info = get(f"http://127.0.0.1:8069/info")
+        info = get(f"http://127.0.0.1:8069{base_url}/info")
         if not info.ok:
             raise HTTPException(status_code=info.status_code, detail=info.text)
         info = info.json()
