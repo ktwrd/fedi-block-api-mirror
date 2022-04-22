@@ -22,7 +22,8 @@ def info():
 def blocked(domain: str):
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
-    c.execute("select blocker, block_level, reason from blocks where blocked = ?", (domain,))
+    wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
+    c.execute("select blocker, block_level, reason from blocks where blocked = ? or blocked = ?", (domain, wildchar))
     blocks = c.fetchall()
     conn.close()
 
