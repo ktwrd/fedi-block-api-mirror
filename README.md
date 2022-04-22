@@ -33,9 +33,7 @@ systemctl enable --now fedi_block_api
 
 ## Try it out
 
-https://chizu.love/fedi-block-api/info
-
-https://chizu.love/fedi-block-api/domain/ {domain}
+https://chizu.love/fedi-block-api
 
 ## License
 

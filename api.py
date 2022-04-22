@@ -1,9 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 import sqlite3
 from hashlib import sha256
+from fastapi.templating import Jinja2Templates
+from requests import get
 
 base_url = ""
 app = FastAPI(docs_url=base_url+"/docs", redoc_url=base_url+"/redoc")
+templates = Jinja2Templates(directory=".")
 
 def get_hash(domain: str) -> str:
     return sha256(domain.encode("utf-8")).hexdigest()
@@ -22,8 +25,10 @@ def info():
         "source_code": "https://gitlab.com/EnjuAihara/fedi-block-api",
     }
 
-@app.get(base_url+"/domain/{domain}")
-def blocked(domain: str):
+@app.get(base_url+"/api")
+def blocked(domain: str = None):
+    if domain == None:
+        raise HTTPException(status_code=400, detail="No domain specified")
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
     wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
@@ -48,3 +53,15 @@ def blocked(domain: str):
 
     return {"blocks": result, "reasons": reasons}
 
+@app.get(base_url+"/")
+def index(request: Request, domain: str = None):
+    blocks = get(f"http://127.0.0.1:8069/api?domain={domain}")
+    info = None
+    if domain == None:
+        info = get(f"http://127.0.0.1:8069/info")
+        if not info.ok:
+            raise HTTPException(status_code=info.status_code, detail=info.text)
+        info = info.json()
+    if not blocks.ok:
+        raise HTTPException(status_code=blocks.status_code, detail=blocks.text)
+    return templates.TemplateResponse("index.html", {"request": request, "domain": domain, "blocks": blocks.json(), "info": info})

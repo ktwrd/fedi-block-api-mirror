@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<head>
+    <title>fedi-block-api {{domain}}</title>
+    <style>
+        body {
+            background-color: #000022;
+            color: #ffffff;
+            text-align: center;
+        }
+        .block_level {
+            background-color: #1c1c3c;
+            width: 750px;
+            padding: 5px;
+            margin: auto;
+            margin-top: 10px;
+        }
+        .block {
+            background-color: #2d2d4d;
+            padding: 5px;
+            margin: 5px;
+        }
+        a {
+            color: #ffffff;
+        }
+        .info {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    {% if domain %}
+        <h1>Instances that block {{domain}}</h1>
+        {% for block_level in blocks.blocks %}
+            <div class="block_level">
+                <h2>{{block_level}} ({{blocks.blocks[block_level]|length}})</h2>
+                {% for block in blocks.blocks[block_level] %}
+                    <div class="block">
+                        <img src="https://chizu.love/fedi-block-api/favicons/{{block}}.png" width=16/>
+                        <b><a href="https://{{block}}">{{block}}</a></b><br/>
+                        {% if block_level in blocks.reasons %}
+                            {{blocks.reasons[block_level][block]}}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <h1>Enter a Domain</h1>
+        <form>
+            <input type="text" name="domain" placeholder="example.com" />
+            <input type="submit" value="Submit" />
+        </form>
+        <div class="info">
+            known instances: {{info.known_instances}}<br/>
+            indexed instances: {{info.indexed_instances}}<br/>
+            blocks recorded: {{info.blocks_recorded}}<br/>
+            source code: <a href="{{info.source_code}}">{{info.source_code}}</a>
+        </div>
+    {% endif %}
+</body>
+</html>

@@ -2,4 +2,4 @@ beautifulsoup4
 fastapi
 uvicorn
 requests
-
+jinja2
