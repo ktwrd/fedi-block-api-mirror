@@ -16,6 +16,18 @@ def get_mastodon_blocks(domain: str) -> dict:
         "Silenced servers": [],
     }
 
+    translations = {
+        "Gesperrte Server": "Suspended servers",
+        "Gefilterte Medien": "Filtered media",
+        "Stummgeschaltete Server": "Silenced servers",
+        "停止済みのサーバー": "Suspended servers",
+        "メディアを拒否しているサーバー": "Filtered media",
+        "サイレンス済みのサーバー": "Silenced servers",
+        "Serveurs suspendus": "Suspended servers",
+        "Médias filtrés": "Filtered media",
+        "Serveurs limités": "Silenced servers",
+    }
+
     try:
         doc = BeautifulSoup(
             get(f"https://{domain}/about/more", headers=headers, timeout=5).text,
@@ -26,8 +38,11 @@ def get_mastodon_blocks(domain: str) -> dict:
 
     for header in doc.find_all("h3"):
         for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
-            if header.text in blocks:
-                blocks[header.text].append(
+            header_text = header.text
+            if header_text in translations:
+                    header_text = translations[header_text]
+            if header_text in blocks:
+                blocks[header_text].append(
                     {
                         "domain": line.find("span").text,
                         "hash": line.find("span")["title"][9:],
