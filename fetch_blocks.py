@@ -95,8 +95,8 @@ for blocker, software in c.fetchall():
             ).json()["metadata"]["federation"]
             if "mrf_simple" in federation:
                 for block_level, blocks in (
-                    federation["mrf_simple"]
-                    | {"quarantined_instances": federation["quarantined_instances"]}
+                    {**federation["mrf_simple"],
+                    **{"quarantined_instances": federation["quarantined_instances"]}}
                 ).items():
                     for blocked in blocks:
                         if blocked == "":
@@ -122,10 +122,10 @@ for blocker, software in c.fetchall():
             # Reasons
             if "mrf_simple_info" in federation:
                 for block_level, info in (
-                    federation["mrf_simple_info"]
-                    | federation["quarantined_instances_info"]
+                    {**federation["mrf_simple_info"],
+                    **(federation["quarantined_instances_info"]
                     if "quarantined_instances_info" in federation
-                    else {}
+                    else {})}
                 ).items():
                     for blocked, reason in info.items():
                         c.execute(
