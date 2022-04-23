@@ -28,7 +28,23 @@
     </style>
 </head>
 <body>
-    {% if domain %}
+    {% if reason %}
+        <h1>Instances that use "{{reason}}" in their Reason</h1>
+        {% for block_level in blocks.blocks %}
+            <div class="block_level">
+                <h2>{{block_level}} ({{blocks.blocks[block_level]|length}})</h2>
+                {% for block in blocks.blocks[block_level] %}
+                    <div class="block">
+                        <img src="https://chizu.love/fedi-block-api/favicons/{{block.blocker}}.png" width=16/>
+                        <b><a href="https://{{block.blocker}}">{{block.blocker}}</a></b> -> 
+                        <img src="https://chizu.love/fedi-block-api/favicons/{{block.blocked}}.png" width=16/>
+                        <b><a href="https://{{block.blocked}}">{{block.blocked}}</a></b><br/>
+                        {{block.reason}}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% elif blocks %}
         <h1>Instances that block {{domain}}</h1>
         {% for block_level in blocks.blocks %}
             <div class="block_level">
@@ -48,6 +64,11 @@
         <h1>Enter a Domain</h1>
         <form>
             <input type="text" name="domain" placeholder="example.com" />
+            <input type="submit" value="Submit" />
+        </form>
+        <h1>Enter a Reason</h1>
+        <form>
+            <input type="text" name="reason" placeholder="free speech" />
             <input type="submit" value="Submit" />
         </form>
         <div class="info">
