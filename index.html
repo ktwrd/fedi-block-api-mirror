@@ -47,7 +47,7 @@
     {% elif blocks %}
         <h1>Instances that block {{domain}}</h1>
         {% for block_level in blocks.blocks %}
-            <div class="block_level">
+            <div class="block_level" id="{{block_level}}">
                 <h2>{{block_level}} ({{blocks.blocks[block_level]|length}})</h2>
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
