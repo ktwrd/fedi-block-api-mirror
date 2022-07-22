@@ -69,9 +69,9 @@ def get_type(domain: str) -> str:
         if res.ok and "text/html" in res.headers["content-type"]:
             res = get(f"https://{domain}/nodeinfo/2.1", headers=headers, timeout=5)
         if res.ok:
-            if res.json()["software"]["name"] == "akkoma"
+            if res.json()["software"]["name"] == "akkoma":
                 return "pleroma"
-            else
+            else:
                 return res.json()["software"]["name"]
         elif res.status_code == 404:
             res = get(f"https://{domain}/api/v1/instance", headers=headers, timeout=5)
