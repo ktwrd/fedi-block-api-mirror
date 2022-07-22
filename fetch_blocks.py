@@ -4,7 +4,7 @@ import sqlite3
 from bs4 import BeautifulSoup
 
 headers = {
-    "user-agent": "fedi-block-api (https://gitlab.com/EnjuAihara/fedi-block-api)"
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
 }
 
 
