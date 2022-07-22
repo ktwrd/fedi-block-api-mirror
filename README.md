@@ -35,7 +35,7 @@ systemctl enable --now fedi_block_api
 
 ## Try it out
 
-https://fba.ryona.agency/fedi-block-api
+https://fba.ryona.agency/
 
 ## License
 

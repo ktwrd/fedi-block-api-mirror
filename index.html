@@ -54,9 +54,9 @@
                 <h2>{{block_level}} ({{blocks.blocks[block_level]|length}})</h2>
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
-                        <img src="/fedi-block-api/favicons/{{block.blocker}}.png" width=16/>
+                        <!-- img src="/fedi-block-api/favicons/{{block.blocker}}.png" width=16/ -->
                         <b><a href="https://{{block.blocker}}">{{block.blocker}}</a></b> -> 
-                        <img src="/fedi-block-api/favicons/{{block.blocked}}.png" width=16/>
+                        <!-- img src="/fedi-block-api/favicons/{{block.blocked}}.png" width=16/ -->
                         <b><a href="https://{{block.blocked}}">{{block.blocked}}</a></b><br/>
                         {{block.reason}}
                     </div>
@@ -70,7 +70,7 @@
                 <h2>{{block_level}} ({{blocks.blocks[block_level]|length}})</h2>
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
-                        <img src="/fedi-block-api/favicons/{{block}}.png" width=16/>
+                        <!-- img src="/fedi-block-api/favicons/{{block}}.png" width=16/ -->
                         <b><a href="https://{{block}}">{{block}}</a></b><br/>
                         {% if block_level in blocks.reasons %}
                             {{blocks.reasons[block_level][block]}}
