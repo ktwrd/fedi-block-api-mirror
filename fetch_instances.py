@@ -24,20 +24,20 @@ def get_peers(domain: str) -> str:
 
 peerlist = get_peers(domain)
 
-def get_type(domain: str) -> str:
+def get_type(instdomain: str) -> str:
     try:
-        res = get(f"https://{domain}/nodeinfo/2.1.json", headers=headers, timeout=5)
+        res = get(f"https://{instdomain}/nodeinfo/2.1.json", headers=headers, timeout=5)
         if res.status_code == 404:
-            res = get(f"https://{domain}/nodeinfo/2.0.json", headers=headers, timeout=5)
+            res = get(f"https://{instdomain}/nodeinfo/2.0.json", headers=headers, timeout=5)
         if res.ok and "text/html" in res.headers["content-type"]:
-            res = get(f"https://{domain}/nodeinfo/2.1", headers=headers, timeout=5)
+            res = get(f"https://{instdomain}/nodeinfo/2.1", headers=headers, timeout=5)
         if res.ok:
             if res.json()["software"]["name"] == "akkoma":
                 return "pleroma"
             else:
                 return res.json()["software"]["name"]
         elif res.status_code == 404:
-            res = get(f"https://{domain}/api/v1/instance", headers=headers, timeout=5)
+            res = get(f"https://{instdomain}/api/v1/instance", headers=headers, timeout=5)
         if res.ok:
             return "mastodon"
     except:
