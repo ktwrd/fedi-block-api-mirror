@@ -44,7 +44,7 @@ def get_mastodon_blocks(domain: str) -> dict:
             if header_text in blocks:
                 blocks[header_text].append(
                     {
-                        "domain": line.find("span").text,
+                        "domain": line.find("span").text.lower(),
                         "hash": line.find("span")["title"][9:],
                         "reason": line.find_all("td")[1].text.strip(),
                     }
@@ -104,6 +104,7 @@ for blocker, software in c.fetchall():
                     for blocked in blocks:
                         if blocked == "":
                             continue
+                        blocked == blocked.lower()
                         c.execute(
                             "select domain from instances where domain = ?", (blocked,)
                         )

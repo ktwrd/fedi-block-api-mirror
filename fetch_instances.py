@@ -52,6 +52,7 @@ c.execute(
 )
 
 for instance in peerlist:
+    instance = instance.lower()
     print(instance)
     try:
         if c.fetchone() == None:
