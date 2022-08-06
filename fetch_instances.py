@@ -61,5 +61,5 @@ for instance in peerlist:
             )
         conn.commit()
     except Exception as e:
-        print("error:", e, blocker)
+        print("error:", e, instance)
 conn.close()
