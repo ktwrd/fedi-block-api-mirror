@@ -105,6 +105,7 @@ for blocker, software in c.fetchall():
                         if blocked == "":
                             continue
                         blocked == blocked.lower()
+                        blocker == blocker.lower()
                         c.execute(
                             "select domain from instances where domain = ?", (blocked,)
                         )
@@ -132,6 +133,7 @@ for blocker, software in c.fetchall():
                     else {})}
                 ).items():
                     for blocked, reason in info.items():
+                        blocker == blocker.lower()
                         blocked == blocked.lower()
                         c.execute(
                             "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
@@ -148,6 +150,7 @@ for blocker, software in c.fetchall():
                 for instance in blocks:
                     blocked, blocked_hash, reason = instance.values()
                     blocked == blocked.lower()
+                    blocker == blocker.lower()
                     if blocked.count("*") <= 1:
                         c.execute(
                             "select hash from instances where hash = ?", (blocked_hash,)
