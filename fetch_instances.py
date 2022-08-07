@@ -55,6 +55,9 @@ for instance in peerlist:
     instance = instance.lower()
     print(instance)
     try:
+        c.execute(
+            "select domain from instances where domain = ?", (instance,)
+        )
         if c.fetchone() == None:
             c.execute(
                 "insert into instances select ?, ?, ?",
