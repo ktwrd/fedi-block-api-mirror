@@ -132,6 +132,7 @@ for blocker, software in c.fetchall():
                     else {})}
                 ).items():
                     for blocked, reason in info.items():
+                        blocked == blocked.lower()
                         c.execute(
                             "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
                             (reason["reason"], blocker, blocked, block_level),
@@ -145,8 +146,8 @@ for blocker, software in c.fetchall():
             json = get_mastodon_blocks(blocker)
             for block_level, blocks in json.items():
                 for instance in blocks:
-                    blocked == blocked.lower()
                     blocked, blocked_hash, reason = instance.values()
+                    blocked == blocked.lower()
                     if blocked.count("*") <= 1:
                         c.execute(
                             "select hash from instances where hash = ?", (blocked_hash,)
