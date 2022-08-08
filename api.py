@@ -48,7 +48,7 @@ def blocked(domain: str = None, reason: str = None):
 
     result = {}
     reasons = {}
-    wildcards = {}
+    wildcards = []
     if domain != None:
         for domain, blocked, block_level, reason in blocks:
             if block_level in result:
