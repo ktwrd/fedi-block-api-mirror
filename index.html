@@ -44,6 +44,10 @@
         input[type="submit"]:hover {
             border-color: #f08;
         }
+
+        span[title] {
+            text-decoration: underline dotted;
+        }
     </style>
 </head>
 <body>
@@ -71,7 +75,11 @@
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
                         <img src="https://proxy.duckduckgo.com/ip3/{{block}}.ico" width=16/>
-                        <b><a href="https://{{block}}">{{block}}</a></b><br/>
+                        <b><a href="https://{{block}}">{{block}}</a></b>
+                        {% if block in wildcards %}
+                            (<span title="wildcard block">&lowast;</span>)
+                        {% endif %}
+                        <br/>
                         {% if block_level in blocks.reasons %}
                             {{blocks.reasons[block_level][block]}}
                         {% endif %}

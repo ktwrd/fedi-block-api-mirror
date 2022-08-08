@@ -39,7 +39,7 @@ def blocked(domain: str = None, reason: str = None):
     if domain != None:
         wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
         punycode = domain.encode('idna').decode('utf-8')
-        c.execute("select blocker, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
+        c.execute("select blocker, blocked, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
                   (domain, "*." + domain, wildchar, get_hash(domain), punycode, "*." + punycode))
     else:
         c.execute("select * from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
@@ -48,19 +48,21 @@ def blocked(domain: str = None, reason: str = None):
 
     result = {}
     reasons = {}
+    wildcards = {}
     if domain != None:
-        for domain, block_level, reason in blocks:
+        for domain, blocked, block_level, reason in blocks:
             if block_level in result:
                 result[block_level].append(domain)
             else:
                 result[block_level] = [domain]
-                
+            if blocked == "*." + ".".join(blocked.split(".")[-blocked.count("."):]):
+                wildcards.append(domain)
             if reason != "":
                 if block_level in reasons:
                     reasons[block_level][domain] = reason
                 else:
                     reasons[block_level] = {domain: reason}
-        return {"blocks": result, "reasons": reasons}
+        return {"blocks": result, "reasons": reasons, "wildcards": wildcards}
 
     for blocker, blocked, reason, block_level in blocks:
         if block_level in result:
@@ -88,7 +90,7 @@ def index(request: Request, domain: str = None, reason: str = None):
         if not blocks.ok:
             raise HTTPException(status_code=blocks.status_code, detail=blocks.text)
         blocks = blocks.json()
-    return templates.TemplateResponse("index.html", {"request": request, "domain": domain, "blocks": blocks, "reason": reason, "info": info})
+    return templates.TemplateResponse("index.html", {"request": request, "domain": domain, "blocks": blocks, "wildcards": wildcards, "reason": reason, "info": info})
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=port, log_level="info")
