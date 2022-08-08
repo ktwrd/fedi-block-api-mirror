@@ -38,8 +38,9 @@ def blocked(domain: str = None, reason: str = None):
     c = conn.cursor()
     if domain != None:
         wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
+        punycode = domain.encode('idna').decode('utf-8')
         c.execute("select blocker, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
-                  (domain, "*." + domain, wildchar, get_hash(domain), domain.encode('idna'), "*." + domain.encode('idna')))
+                  (domain, "*." + domain, wildchar, get_hash(domain), punycode, "*." + punycode))
     else:
         c.execute("select * from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
     blocks = c.fetchall()
