@@ -76,7 +76,7 @@
                     <div class="block">
                         <img src="https://proxy.duckduckgo.com/ip3/{{block}}.ico" width=16/>
                         <b><a href="https://{{block}}">{{block}}</a></b>
-                        {% if block in wildcards %}
+                        {% if block in blocks.wildcards %}
                             (<span title="wildcard block">&lowast;</span>)
                         {% endif %}
                         <br/>

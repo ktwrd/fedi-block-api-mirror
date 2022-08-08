@@ -72,7 +72,7 @@ def blocked(domain: str = None, reason: str = None):
     return {"blocks": result}
 
 @app.get(base_url+"/")
-def index(request: Request, domain: str = None, reason: str = None, wildcards: str = None):
+def index(request: Request, domain: str = None, reason: str = None):
     if domain == "" or reason == "":
         return responses.RedirectResponse("/")
     info = None
@@ -90,7 +90,7 @@ def index(request: Request, domain: str = None, reason: str = None, wildcards: s
         if not blocks.ok:
             raise HTTPException(status_code=blocks.status_code, detail=blocks.text)
         blocks = blocks.json()
-    return templates.TemplateResponse("index.html", {"request": request, "domain": domain, "blocks": blocks, "wildcards": wildcards, "reason": reason, "info": info})
+    return templates.TemplateResponse("index.html", {"request": request, "domain": domain, "blocks": blocks, "reason": reason, "info": info})
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=port, log_level="info")
