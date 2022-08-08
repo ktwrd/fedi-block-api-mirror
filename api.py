@@ -72,7 +72,7 @@ def blocked(domain: str = None, reason: str = None):
     return {"blocks": result}
 
 @app.get(base_url+"/")
-def index(request: Request, domain: str = None, reason: str = None):
+def index(request: Request, domain: str = None, reason: str = None, wildcards: str = None):
     if domain == "" or reason == "":
         return responses.RedirectResponse("/")
     info = None
