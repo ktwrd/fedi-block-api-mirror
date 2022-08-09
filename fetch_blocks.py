@@ -71,6 +71,8 @@ def get_type(domain: str) -> str:
         if res.ok:
             if res.json()["software"]["name"] == "akkoma":
                 return "pleroma"
+            elif res.json()["software"]["name"] == "hometown":
+                return "mastodon"
             else:
                 return res.json()["software"]["name"]
         elif res.status_code == 404:
