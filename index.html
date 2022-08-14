@@ -60,9 +60,9 @@
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
                         <img src="https://proxy.duckduckgo.com/ip3/{{block.blocker}}.ico" width=16/>
-                        <b><a href="https://{{block.blocker}}">{{block.blocker}}</a></b> -> 
+                        <b><a href="https://{{block.blocker}}" rel="nofollow noopener noreferrer">{{block.blocker}}</a></b> ->
                         <img src="https://proxy.duckduckgo.com/ip3/{{block.blocked}}.ico" width=16/>
-                        <b><a href="https://{{block.blocked}}">{{block.blocked}}</a></b><br/>
+                        <b><a href="https://{{block.blocked}}" rel="nofollow noopener noreferrer">{{block.blocked}}</a></b><br/>
                         {{block.reason}}
                     </div>
                 {% endfor %}
@@ -76,7 +76,7 @@
                 {% for block in blocks.blocks[block_level] %}
                     <div class="block">
                         <img src="https://proxy.duckduckgo.com/ip3/{{block}}.ico" width=16/>
-                        <b><a href="https://{{block}}">{{block}}</a></b>
+                        <b><a href="https://{{block}}" rel="nofollow noopener noreferrer">{{block}}</a></b>
                         {% if block in blocks.wildcards %}
                             (<span title="wildcard block">&lowast;</span>)
                         {% endif %}
