@@ -208,7 +208,7 @@ for blocker, software in c.fetchall():
         print(blocker)
         try:
             json = get_friendica_blocks(blocker)
-            for blocks in json.items():
+            for block_level, blocks in json.items():
                 for instance in blocks:
                     blocked, reason = instance.values()
                     blocked == blocked.lower()
@@ -232,7 +232,7 @@ for blocker, software in c.fetchall():
                                 blocker,
                                 blocked,
                                 reason,
-                                "reject",
+                                block_level,
                             ),
                         )
             conn.commit()
