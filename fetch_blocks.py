@@ -112,7 +112,7 @@ conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
 c.execute(
-    "select domain, software from instances where software in ('pleroma', 'mastodon')"
+    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica')"
 )
 
 for blocker, software in c.fetchall():
