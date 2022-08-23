@@ -88,6 +88,8 @@ def get_type(domain: str) -> str:
     try:
         res = get(f"https://{domain}/nodeinfo/2.1.json", headers=headers, timeout=5)
         if res.status_code == 404:
+            res = get(f"https://{domain}/nodeinfo/2.0", headers=headers, timeout=5)
+        if res.status_code == 404:
             res = get(f"https://{domain}/nodeinfo/2.0.json", headers=headers, timeout=5)
         if res.ok and "text/html" in res.headers["content-type"]:
             res = get(f"https://{domain}/nodeinfo/2.1", headers=headers, timeout=5)
