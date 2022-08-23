@@ -56,6 +56,29 @@ def get_mastodon_blocks(domain: str) -> dict:
         + blocks["Silenced servers"],
     }
 
+def get_friendica_blocks(domain: str) -> dict:
+    blocks = []
+
+    try:
+        doc = BeautifulSoup(
+            get(f"https://{domain}/friendica", headers=headers, timeout=5).text,
+            "html.parser",
+        )
+    except:
+        return {}
+
+    blocklist = doc.find(id="about_blocklist")
+    for line in blocklist.find("table").find_all("tr")[1:]:
+            blocks.append(
+                {
+                    "domain": line.find_all("td")[0].text.strip(),
+                    "reason": line.find_all("td")[1].text.strip()
+                }
+            )
+
+    return {
+        "reject": blocks
+    }
 
 def get_hash(domain: str) -> str:
     return sha256(domain.encode("utf-8")).hexdigest()
@@ -164,7 +187,7 @@ for blocker, software in c.fetchall():
                             )
                     c.execute(
                         "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
-                        (blocker, blocked, block_level),
+                        (blocker, blocked if blocked.count("*") <= 1 else blocked_hash, block_level),
                     )
                     if c.fetchone() == None:
                         c.execute(
@@ -174,6 +197,40 @@ for blocker, software in c.fetchall():
                                 blocked if blocked.count("*") <= 1 else blocked_hash,
                                 reason,
                                 block_level,
+                            ),
+                        )
+            conn.commit()
+        except Exception as e:
+            print("error:", e, blocker)
+    elif software == "friendica"
+        print(blocker)
+        try:
+            json = get_friendica_blocks(blocker)
+            for blocks in json.items():
+                for instance in blocks:
+                    blocked, reason = instance.values()
+                    blocked == blocked.lower()
+                    blocker == blocker.lower()
+                    c.execute(
+                        "select domain from instances where domain = ?", (blocked,)
+                    )
+                    if c.fetchone() == None:
+                        c.execute(
+                            "insert into instances select ?, ?, ?",
+                            (blocked, get_hash(blocked), get_type(blocked)),
+                        )
+                    c.execute(
+                        "select * from blocks where blocker = ? and blocked = ?",
+                        (blocker, blocked),
+                    )
+                    if c.fetchone() == None:
+                        c.execute(
+                            "insert into blocks select ?, ?, ?, ?",
+                            (
+                                blocker,
+                                blocked,
+                                reason,
+                                "reject",
                             ),
                         )
             conn.commit()
