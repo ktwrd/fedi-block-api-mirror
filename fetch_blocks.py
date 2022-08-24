@@ -204,7 +204,7 @@ for blocker, software in c.fetchall():
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
-    elif software == "friendica"
+    elif software == "friendica":
         print(blocker)
         try:
             json = get_friendica_blocks(blocker)
