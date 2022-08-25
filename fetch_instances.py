@@ -36,6 +36,8 @@ def get_type(instdomain: str) -> str:
         if res.ok:
             if res.json()["software"]["name"] == "akkoma":
                 return "pleroma"
+            elif res.json()["software"]["name"] == "rebased":
+                return "pleroma"
             elif res.json()["software"]["name"] == "hometown":
                 return "mastodon"
             elif res.json()["software"]["name"] == "ecko":
