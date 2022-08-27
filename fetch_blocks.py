@@ -17,6 +17,8 @@ def get_mastodon_blocks(domain: str) -> dict:
     }
 
     translations = {
+        "Silenced instances": "Silenced servers",
+        "Suspended instances": "Suspended servers",
         "Gesperrte Server": "Suspended servers",
         "Gefilterte Medien": "Filtered media",
         "Stummgeschaltete Server": "Silenced servers",
