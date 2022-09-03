@@ -3,6 +3,7 @@ from requests import post
 from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup
+from json import dumps
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0"
