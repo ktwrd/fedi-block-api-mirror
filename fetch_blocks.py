@@ -166,7 +166,7 @@ def get_type(domain: str) -> str:
                 return "pleroma"
             elif res.json()["software"]["name"] in ["hometown", "ecko"]:
                 return "mastodon"
-            elif res.json()["software"]["name"] in ["calckey", "groundpolis"]:
+            elif res.json()["software"]["name"] in ["calckey", "groundpolis", "foundkey"]:
                 return "misskey"
             else:
                 return res.json()["software"]["name"]
