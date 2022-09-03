@@ -45,7 +45,8 @@ def get_mastodon_blocks(domain: str) -> dict:
         if header_text in translations:
             header_text = translations[header_text]
         if header_text in blocks:
-            for line in header.find_next_siblings("table")[0].find_all("tr")[1:]:
+            # replaced find_next_siblings with find_all_next to account for instances that e.g. hide lists in dropdown menu
+            for line in header.find_all_next("table")[0].find_all("tr")[1:]:
                 blocks[header_text].append(
                     {
                         "domain": line.find("span").text,
