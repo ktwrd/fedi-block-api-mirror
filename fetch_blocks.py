@@ -4,6 +4,7 @@ from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup
 from json import dumps
+import re
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0"
@@ -182,7 +183,7 @@ conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
 c.execute(
-    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica', 'misskey')"
+    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica', 'misskey', 'gotosocial')"
 )
 
 for blocker, software in c.fetchall():
@@ -201,8 +202,8 @@ for blocker, software in c.fetchall():
                     for blocked in blocks:
                         if blocked == "":
                             continue
-                        blocked == blocked.lower()
-                        blocker == blocker.lower()
+                        blocked = blocked.lower()
+                        blocker = blocker.lower()
                         c.execute(
                             "select domain from instances where domain = ?", (blocked,)
                         )
@@ -230,8 +231,8 @@ for blocker, software in c.fetchall():
                     else {})}
                 ).items():
                     for blocked, reason in info.items():
-                        blocker == blocker.lower()
-                        blocked == blocked.lower()
+                        blocker = blocker.lower()
+                        blocked = blocked.lower()
                         c.execute(
                             "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
                             (reason["reason"], blocker, blocked, block_level),
@@ -246,8 +247,8 @@ for blocker, software in c.fetchall():
             for block_level, blocks in json.items():
                 for instance in blocks:
                     blocked, blocked_hash, reason = instance.values()
-                    blocked == blocked.lower()
-                    blocker == blocker.lower()
+                    blocked = blocked.lower()
+                    blocker = blocker.lower()
                     if blocked.count("*") <= 1:
                         c.execute(
                             "select hash from instances where hash = ?", (blocked_hash,)
@@ -284,8 +285,8 @@ for blocker, software in c.fetchall():
             for block_level, blocks in json.items():
                 for instance in blocks:
                     blocked, reason = instance.values()
-                    blocked == blocked.lower()
-                    blocker == blocker.lower()
+                    blocked = blocked.lower()
+                    blocker = blocker.lower()
                     c.execute(
                         "select domain from instances where domain = ?", (blocked,)
                     )
@@ -307,6 +308,59 @@ for blocker, software in c.fetchall():
                                 reason,
                                 block_level,
                             ),
+                        )
+            conn.commit()
+        except Exception as e:
+            print("error:", e, blocker)
+    elif software == "gotosocial":
+        print(blocker)
+        try:
+            # Blocks
+            federation = get(
+                f"https://{blocker}/api/v1/instance/peers?filter=suspended", headers=headers, timeout=5
+            ).json()
+            print(federation)
+            for peer in federation:
+                blocked = peer["domain"].lower()
+                blocker = blocker.lower()
+
+                if blocked.count("*") > 0:
+                    # GTS does not have hashes for obscured domains, so we have to guess it
+                    c.execute(
+                        "select domain from instances where domain like ? order by rowid limit 1", (blocked.replace("*", "_"),)
+                    )
+                    searchres = c.fetchone()
+                    if searchres != None:
+                        blocked = searchres[0]
+
+                c.execute(
+                    "select domain from instances where domain = ?", (blocked,)
+                )
+                if c.fetchone() == None:
+                    c.execute(
+                        "insert into instances select ?, ?, ?",
+                        (blocked, get_hash(blocked), get_type(blocked)),
+                    )
+                c.execute(
+                    "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
+                    (blocker, blocked, "reject"),
+                )
+                if c.fetchone() == None:
+                    c.execute(
+                        "insert into blocks select ?, ?, ?, ?",
+                           (blocker, blocked, "", "reject"),
+                    )
+
+                if "public_comment" in peer:
+                    reason = peer["public_comment"]
+                    c.execute(
+                        "select * from blocks where blocker = ? and blocked = ? and reason != ? and block_level = ?",
+                        (blocker, blocked, "", "reject"),
+                    )
+                    if c.fetchone() == None:
+                        c.execute(
+                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
+                            (reason, blocker, blocked, "reject"),
                         )
             conn.commit()
         except Exception as e:
