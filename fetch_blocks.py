@@ -319,7 +319,6 @@ for blocker, software in c.fetchall():
             federation = get(
                 f"https://{blocker}/api/v1/instance/peers?filter=suspended", headers=headers, timeout=5
             ).json()
-            print(federation)
             for peer in federation:
                 blocked = peer["domain"].lower()
                 blocker = blocker.lower()
