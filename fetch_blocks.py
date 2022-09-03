@@ -1,4 +1,5 @@
 from requests import get
+from requests import post
 from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup
@@ -82,6 +83,69 @@ def get_friendica_blocks(domain: str) -> dict:
         "reject": blocks
     }
 
+def get_pisskey_blocks(domain: str) -> dict:
+    blocks = {
+        "suspended": [],
+        "blocked": []
+    }
+
+    try:
+        counter = 0
+        step = 99
+        while True:
+            # iterating through all "suspended" (follow-only in its terminology) instances page-by-page, since that troonware doesn't support sending them all at once
+            try:
+                if counter == 0:
+                    doc = post(f"https://{domain}/api/federation/instances", data=dumps({"sort":"+caughtAt","host":None,"suspended":True,"limit":step}), headers=headers, timeout=5).json()
+                    if doc == []: raise
+                else:
+                    doc = post(f"https://{domain}/api/federation/instances", data=dumps({"sort":"+caughtAt","host":None,"suspended":True,"limit":step,"offset":counter-1}), headers=headers, timeout=5).json()
+                    if doc == []: raise
+                for instance in doc:
+                    # just in case
+                    if instance["isSuspended"]:
+                        blocks["suspended"].append(
+                            {
+                                "domain": instance["host"],
+                                # no reason field, nothing
+                                "reason": ""
+                            }
+                        )
+                counter = counter + step
+            except:
+                counter = 0
+                break
+
+        while True:
+            # same shit, different asshole ("blocked" aka full suspend)
+            try:
+                if counter == 0:
+                    doc = post(f"https://{domain}/api/federation/instances", data=dumps({"sort":"+caughtAt","host":None,"blocked":True,"limit":step}), headers=headers, timeout=5).json()
+                    if doc == []: raise
+                else:
+                    doc = post(f"https://{domain}/api/federation/instances", data=dumps({"sort":"+caughtAt","host":None,"blocked":True,"limit":step,"offset":counter-1}), headers=headers, timeout=5).json()
+                    if doc == []: raise
+                for instance in doc:
+                    if instance["isBlocked"]:
+                        blocks["blocked"].append(
+                            {
+                                "domain": instance["host"],
+                                "reason": ""
+                            }
+                        )
+                counter = counter + step
+            except:
+                counter = 0
+                break
+
+        return {
+            "reject": blocks["blocked"],
+            "followers_only": blocks["suspended"]
+        }
+
+    except:
+        return {}
+
 def get_hash(domain: str) -> str:
     return sha256(domain.encode("utf-8")).hexdigest()
 
@@ -104,6 +168,8 @@ def get_type(domain: str) -> str:
                 return "mastodon"
             elif res.json()["software"]["name"] == "ecko":
                 return "mastodon"
+            elif res.json()["software"]["name"] == "calckey":
+                return "misskey"
             else:
                 return res.json()["software"]["name"]
         elif res.status_code == 404:
@@ -118,7 +184,7 @@ conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
 c.execute(
-    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica')"
+    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica', 'misskey')"
 )
 
 for blocker, software in c.fetchall():
@@ -210,10 +276,13 @@ for blocker, software in c.fetchall():
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
-    elif software == "friendica":
+    elif software == "friendica" or software == "misskey":
         print(blocker)
         try:
-            json = get_friendica_blocks(blocker)
+            if software == "friendica":
+                json = get_friendica_blocks(blocker)
+            elif software == "misskey":
+                json = get_pisskey_blocks(blocker)
             for block_level, blocks in json.items():
                 for instance in blocks:
                     blocked, reason = instance.values()
