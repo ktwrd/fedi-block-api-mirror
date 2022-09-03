@@ -162,15 +162,11 @@ def get_type(domain: str) -> str:
         if res.ok and "text/html" in res.headers["content-type"]:
             res = get(f"https://{domain}/nodeinfo/2.1", headers=headers, timeout=5)
         if res.ok:
-            if res.json()["software"]["name"] == "akkoma":
+            if res.json()["software"]["name"] in ["akkoma", "rebased"]:
                 return "pleroma"
-            elif res.json()["software"]["name"] == "rebased":
-                return "pleroma"
-            elif res.json()["software"]["name"] == "hometown":
+            elif res.json()["software"]["name"] in ["hometown", "ecko"]:
                 return "mastodon"
-            elif res.json()["software"]["name"] == "ecko":
-                return "mastodon"
-            elif res.json()["software"]["name"] == "calckey":
+            elif res.json()["software"]["name"] in ["calckey", "groundpolis"]:
                 return "misskey"
             else:
                 return res.json()["software"]["name"]
