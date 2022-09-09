@@ -185,6 +185,8 @@ def tidyup(domain: str) -> str:
     domain = re.sub("\:\d+$", "", domain)
     # bigger retards put the schema in their blocklist, sometimes even without slashes
     domain = re.sub("^https?\:(\/*)", "", domain)
+    # and trailing slash
+    domain = re.sub("\/$", "", domain)
     # the biggest retards of them all try to block individual users
     domain = re.sub("(.+)\@", "", domain)
     return domain
