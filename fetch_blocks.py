@@ -312,6 +312,16 @@ for blocker, software in c.fetchall():
                 for instance in blocks:
                     blocked, reason = instance.values()
                     blocked = tidyup(blocked)
+
+                    if blocked.count("*") > 0:
+                        # Some friendica servers also obscure domains without hash
+                        c.execute(
+                            "select domain from instances where domain like ? order by rowid limit 1", (blocked.replace("*", "_"),)
+                        )
+                        searchres = c.fetchone()
+                        if searchres != None:
+                            blocked = searchres[0]
+
                     c.execute(
                         "select domain from instances where domain = ?", (blocked,)
                     )
