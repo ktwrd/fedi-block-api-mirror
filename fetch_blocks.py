@@ -324,6 +324,15 @@ for blocker, software in c.fetchall():
                         if searchres != None:
                             blocked = searchres[0]
 
+                    if blocked.count("?") > 0:
+                        # Some obscure them with question marks, not sure if that's dependent on version or not
+                        c.execute(
+                            "select domain from instances where domain like ? order by rowid limit 1", (blocked.replace("?", "_"),)
+                        )
+                        searchres = c.fetchone()
+                        if searchres != None:
+                            blocked = searchres[0]
+
                     c.execute(
                         "select domain from instances where domain = ?", (blocked,)
                     )
