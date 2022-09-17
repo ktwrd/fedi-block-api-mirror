@@ -38,7 +38,7 @@ def get_type(instdomain: str) -> str:
                 return "pleroma"
             elif res.json()["software"]["name"] in ["hometown", "ecko"]:
                 return "mastodon"
-            elif res.json()["software"]["name"] in ["calckey", "groundpolis", "foundkey"]:
+            elif res.json()["software"]["name"] in ["calckey", "groundpolis", "foundkey", "cherrypick"]:
                 return "misskey"
             else:
                 return res.json()["software"]["name"]
