@@ -253,6 +253,16 @@ for blocker, software in c.fetchall():
                 ).items():
                     for blocked, reason in info.items():
                         blocked = tidyup(blocked)
+                        if blocked == "":
+                            continue
+                        if blocked.count("*") > 1:
+                            # same domain guess as above, but for reasons field
+                            c.execute(
+                                "select domain from instances where domain like ? order by rowid limit 1", (blocked.replace("*", "_"),)
+                            )
+                            searchres = c.fetchone()
+                            if searchres != None:
+                                blocked = searchres[0]
                         c.execute(
                             "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
                             (reason["reason"], blocker, blocked, block_level),
