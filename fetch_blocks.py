@@ -58,7 +58,7 @@ def get_mastodon_blocks(domain: str) -> dict:
     return {
         "reject": blocks["Suspended servers"],
         "media_removal": blocks["Filtered media"],
-        "federated_timeline_removal": blocks["Limited servers"]
+        "followers_only": blocks["Limited servers"]
         + blocks["Silenced servers"],
     }
 
@@ -273,7 +273,30 @@ for blocker, software in c.fetchall():
     elif software == "mastodon":
         print(blocker)
         try:
-            json = get_mastodon_blocks(blocker)
+            # json endpoint for newer mastodongs
+            try:
+                json = {
+                    "reject": [],
+                    "media_removal": [],
+                    "followers_only": [],
+                    "report_removal": []
+                }
+                blocks = get(
+                    f"https://{blocker}/api/v1/instance/domain_blocks", headers=headers, timeout=5
+                ).json()
+                for block in blocks:
+                    entry = {'domain': block['domain'], 'hash': block['digest'], 'reason': block['comment']}
+                    if block['severity'] == 'suspend':
+                        json['reject'].append(entry)
+                    elif block['severity'] == 'silence':
+                        json['followers_only'].append(entry)
+                    elif block['severity'] == 'reject_media':
+                        json['media_removal'].append(entry)
+                    elif block['severity'] == 'reject_reports':
+                        json['report_removal'].append(entry)
+            except:
+                json = get_mastodon_blocks(blocker)
+
             for block_level, blocks in json.items():
                 for instance in blocks:
                     blocked, blocked_hash, reason = instance.values()
