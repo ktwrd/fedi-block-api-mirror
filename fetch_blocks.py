@@ -5,6 +5,7 @@ import sqlite3
 from bs4 import BeautifulSoup
 from json import dumps
 import re
+from time import time
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0"
@@ -195,7 +196,8 @@ conn = sqlite3.connect("blocks.db")
 c = conn.cursor()
 
 c.execute(
-    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica', 'misskey', 'gotosocial')"
+#    "select domain, software from instances where software in ('pleroma', 'mastodon', 'friendica', 'misskey', 'gotosocial')"
+    "select domain, software from instances where domain = 'glaceon.social'"
 )
 
 for blocker, software in c.fetchall():
@@ -233,14 +235,20 @@ for blocker, software in c.fetchall():
                                 "insert into instances select ?, ?, ?",
                                 (blocked, get_hash(blocked), get_type(blocked)),
                             )
+                        timestamp = int(time())
                         c.execute(
                             "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
                             (blocker, blocked, block_level),
                         )
                         if c.fetchone() == None:
                             c.execute(
-                                "insert into blocks select ?, ?, '', ?",
-                                (blocker, blocked, block_level),
+                                "insert into blocks select ?, ?, '', ?, ?, ?",
+                                (blocker, blocked, block_level, timestamp, timestamp),
+                            )
+                        else:
+                            c.execute(
+                                "update blocks set last_seen = ? where blocker = ? and blocked = ? and block_level = ?",
+                                (timestamp, blocker, blocked, block_level)
                             )
             conn.commit()
             # Reasons
@@ -264,7 +272,7 @@ for blocker, software in c.fetchall():
                             if searchres != None:
                                 blocked = searchres[0]
                         c.execute(
-                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
+                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ? and reason = ''",
                             (reason["reason"], blocker, blocked, block_level),
                         )
             conn.commit()
@@ -319,19 +327,32 @@ for blocker, software in c.fetchall():
                         if searchres != None:
                             blocked = searchres[0]
 
+                    timestamp = int(time())
                     c.execute(
                         "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
                         (blocker, blocked if blocked.count("*") <= 1 else blocked_hash, block_level),
                     )
                     if c.fetchone() == None:
                         c.execute(
-                            "insert into blocks select ?, ?, ?, ?",
+                            "insert into blocks select ?, ?, ?, ?, ?, ?",
                             (
                                 blocker,
                                 blocked if blocked.count("*") <= 1 else blocked_hash,
                                 reason,
                                 block_level,
+                                timestamp,
+                                timestamp,
                             ),
+                        )
+                    else:
+                        c.execute(
+                            "update blocks set last_seen = ? where blocker = ? and blocked = ? and block_level = ?",
+                            (timestamp, blocker, blocked if blocked.count("*") <= 1 else blocked_hash, block_level),
+                        )
+                    if reason != '':
+                        c.execute(
+                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ? and reason = ''",
+                            (reason, blocker, blocked if blocked.count("*") <= 1 else blocked_hash, block_level),
                         )
             conn.commit()
         except Exception as e:
@@ -374,19 +395,33 @@ for blocker, software in c.fetchall():
                             "insert into instances select ?, ?, ?",
                             (blocked, get_hash(blocked), get_type(blocked)),
                         )
+
+                    timestamp = int(time())
                     c.execute(
-                        "select * from blocks where blocker = ? and blocked = ?",
-                        (blocker, blocked),
+                        "select * from blocks where blocker = ? and blocked = ? and reason = ?",
+                        (blocker, blocked, reason),
                     )
                     if c.fetchone() == None:
                         c.execute(
-                            "insert into blocks select ?, ?, ?, ?",
+                            "insert into blocks select ?, ?, ?, ?, ?, ?",
                             (
                                 blocker,
                                 blocked,
                                 reason,
                                 block_level,
+                                timestamp,
+                                timestamp
                             ),
+                        )
+                    else:
+                        c.execute(
+                            "update blocks set last_seen = ? where blocker = ? and blocked = ? and block_level = ?",
+                            (timestamp, blocker, blocked, block_level),
+                        )
+                    if reason != '':
+                        c.execute(
+                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ? and reason = ''",
+                            (reason, blocker, blocked, block_level),
                         )
             conn.commit()
         except Exception as e:
@@ -422,23 +457,23 @@ for blocker, software in c.fetchall():
                     "select * from blocks where blocker = ? and blocked = ? and block_level = ?",
                     (blocker, blocked, "reject"),
                 )
+                timestamp = int(time())
                 if c.fetchone() == None:
                     c.execute(
-                        "insert into blocks select ?, ?, ?, ?",
-                           (blocker, blocked, "", "reject"),
+                        "insert into blocks select ?, ?, ?, ?, ?, ?",
+                           (blocker, blocked, "", "reject", timestamp, timestamp),
                     )
-
+                else:
+                    c.execute(
+                        "update blocks set last_seen = ? where blocker = ? and blocked = ? and block_level = ?",
+                        (timestamp, blocker, blocked, "reject"),
+                    )
                 if "public_comment" in peer:
                     reason = peer["public_comment"]
                     c.execute(
-                        "select * from blocks where blocker = ? and blocked = ? and reason != ? and block_level = ?",
-                        (blocker, blocked, "", "reject"),
+                        "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ? and reason = ''",
+                        (reason, blocker, blocked, "reject"),
                     )
-                    if c.fetchone() == None:
-                        c.execute(
-                            "update blocks set reason = ? where blocker = ? and blocked = ? and block_level = ?",
-                            (reason, blocker, blocked, "reject"),
-                        )
             conn.commit()
         except Exception as e:
             print("error:", e, blocker)
