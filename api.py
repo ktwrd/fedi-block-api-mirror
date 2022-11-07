@@ -20,7 +20,7 @@ def get_hash(domain: str) -> str:
 def info():
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
-    c.execute("select (select count(domain) from instances), (select count(domain) from instances where software in ('pleroma', 'mastodon')), (select count(blocker) from blocks)")
+    c.execute("select (select count(domain) from instances), (select count(domain) from instances where software in ('pleroma', 'mastodon', 'misskey', 'gotosocial', 'friendica')), (select count(blocker) from blocks)")
     known, indexed, blocks = c.fetchone()
     c.close()
     return {
