@@ -42,7 +42,7 @@ def blocked(domain: str = None, reason: str = None):
         c.execute("select blocker, blocked, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
                   (domain, "*." + domain, wildchar, get_hash(domain), punycode, "*." + punycode))
     else:
-        c.execute("select blocker, blocked, block_level, reason from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
+        c.execute("select blocker, blocked, reason, block_level from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
     blocks = c.fetchall()
     conn.close()
 
