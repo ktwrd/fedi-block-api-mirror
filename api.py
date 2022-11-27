@@ -34,7 +34,7 @@ def info():
 def blocked(domain: str = None, reason: str = None):
     if domain == None and reason == None:
         raise HTTPException(status_code=400, detail="No filter specified")
-    if domain == None and reason == None:
+    conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
     if domain != None:
         wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
