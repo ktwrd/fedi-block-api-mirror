@@ -34,7 +34,7 @@ def info():
 def blocked(domain: str = None, reason: str = None):
     if domain == None and reason == None:
         raise HTTPException(status_code=400, detail="No filter specified")
-    conn = sqlite3.connect("blocks.db")
+    if domain == None and reason == None:
     c = conn.cursor()
     if domain != None:
         wildchar = "*." + ".".join(domain.split(".")[-domain.count("."):])
@@ -42,7 +42,10 @@ def blocked(domain: str = None, reason: str = None):
         c.execute("select blocker, blocked, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
                   (domain, "*." + domain, wildchar, get_hash(domain), punycode, "*." + punycode))
     else:
-        c.execute("select blocker, blocked, reason, block_level from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
+        if len(reason) < 3:
+            raise HTTPException(status_code=400, detail="Keyword is shorter than three characters")
+        else:
+            c.execute("select blocker, blocked, reason, block_level from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
     blocks = c.fetchall()
     conn.close()
 
