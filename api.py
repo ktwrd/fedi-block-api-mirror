@@ -27,8 +27,7 @@ def info():
     return {
         "known_instances": known,
         "indexed_instances": indexed,
-        "blocks_recorded": blocks,
-        "source_code": "https://git.kiwifarms.net/mint/fedi-block-api",
+        "blocks_recorded": blocks
     }
 
 @app.get(base_url+"/api")
