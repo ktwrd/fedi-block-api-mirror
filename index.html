@@ -82,10 +82,12 @@
         {% endif %}
         <div class="scoreboard">
             <table>
+                <th>№</th>
                 <th>Instance</th>
                 <th>Defederations</th>
                 {% for entry in scores %}
                     <tr>
+                        <td>{{loop.index}}</td>
                         <td>
                             <img src="https://proxy.duckduckgo.com/ip3/{{entry['domain']}}.ico" width=16/>
                             <b><a href="https://{{entry['domain']}}" rel="nofollow noopener noreferrer">{{entry['domain']}}</a></b>
