@@ -5,6 +5,7 @@ from hashlib import sha256
 from fastapi.templating import Jinja2Templates
 from requests import get
 from json import loads
+from re import sub
 
 with open("config.json") as f:
     config = loads(f.read())
@@ -34,6 +35,10 @@ def info():
 def blocked(domain: str = None, reason: str = None):
     if domain == None and reason == None:
         raise HTTPException(status_code=400, detail="No filter specified")
+    if reason != None:
+        reason = sub("(%|_)", "", reason)
+        if len(reason) < 3:
+            raise HTTPException(status_code=400, detail="Keyword is shorter than three characters")
     conn = sqlite3.connect("blocks.db")
     c = conn.cursor()
     if domain != None:
@@ -42,10 +47,7 @@ def blocked(domain: str = None, reason: str = None):
         c.execute("select blocker, blocked, block_level, reason from blocks where blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ? or blocked = ?",
                   (domain, "*." + domain, wildchar, get_hash(domain), punycode, "*." + punycode))
     else:
-        if len(reason) < 3:
-            raise HTTPException(status_code=400, detail="Keyword is shorter than three characters")
-        else:
-            c.execute("select blocker, blocked, reason, block_level from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
+        c.execute("select blocker, blocked, reason, block_level from blocks where reason like ? and reason != ''", ("%"+reason+"%",))
     blocks = c.fetchall()
     conn.close()
 
