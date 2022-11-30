@@ -102,12 +102,12 @@
                 {% endfor %}
             </table>
         </div>
-    {% elif reason or blocks or reverse %}
+    {% elif reason or domain or reverse %}
         {% if reason %}
             <h1>Instances that use "{{reason}}" in their reason</h1>
         {% elif reverse %}
             <h1>Instances that are blocked by {{reverse}}</h1>
-        {% elif blocks %}
+        {% elif domain %}
             <h1>Instances that block {{domain}}</h1>
         {% endif %}
         {% for block_level in blocks %}
@@ -160,7 +160,7 @@
             known instances: {{info.known_instances}}<br/>
             indexed instances: {{info.indexed_instances}}<br/>
             blocks recorded: {{info.blocks_recorded}}<br/>
-            source code: <a href="https://git.kiwifarms.net/mint/fedi-block-api">git.kiwifarms.net/mint/fedi-block-api</a> (<a href="https://gitgud.io/mintplg/fedi-block-api">mirror</a>)<br/>
+            source code: <a href="https://git.kiwifarms.net/mint/fedi-block-api">git.kiwifarms.net/mint/fedi-block-api</a> (<a href="https://gitgud.io/mintplg/fedi-block-api">mirror</a>)<br/><br/>
             fuck jannies<br/>
             #FreeMyNigga
         </div>
