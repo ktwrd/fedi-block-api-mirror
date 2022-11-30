@@ -191,6 +191,8 @@ def tidyup(domain: str) -> str:
     domain = re.sub("^https?\:(\/*)", "", domain)
     # and trailing slash
     domain = re.sub("\/$", "", domain)
+    # and the @
+    domain = re.sub("^\@", "", domain)
     # the biggest retards of them all try to block individual users
     domain = re.sub("(.+)\@", "", domain)
     return domain
