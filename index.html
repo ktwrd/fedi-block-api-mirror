@@ -45,6 +45,10 @@
         a {
             color: #ffffff;
         }
+        a.listlink {
+            text-decoration: none;
+            font-size: 0.8em;
+        }
         .info {
             margin-top: 25px;
         }
@@ -90,7 +94,8 @@
                         <td>{{loop.index}}</td>
                         <td>
                             <img src="https://proxy.duckduckgo.com/ip3/{{entry['domain']}}.ico" width=16/>
-                            <b><a href="https://{{entry['domain']}}" rel="nofollow noopener noreferrer">{{entry['domain']}}</a></b>
+                            <b><a href="/?{% if blockers %}reverse{% elif blocked %}domain{% endif %}={{entry['domain']}}" rel="nofollow noopener noreferrer">{{entry['domain']}}</a></b>&nbsp;
+                            <a class="listlink" href="https://{{entry['domain']}}">↗</a>
                         </td>
                         <td>{{entry['highscore']}}</td>
                     </tr>
@@ -156,7 +161,8 @@
             indexed instances: {{info.indexed_instances}}<br/>
             blocks recorded: {{info.blocks_recorded}}<br/>
             source code: <a href="https://git.kiwifarms.net/mint/fedi-block-api">git.kiwifarms.net/mint/fedi-block-api</a> (<a href="https://gitgud.io/mintplg/fedi-block-api">mirror</a>)<br/>
-            fuck jannies
+            fuck jannies<br/>
+            #FreeMyNigga
         </div>
     {% endif %}
 </body>
