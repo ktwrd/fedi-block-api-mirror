@@ -94,7 +94,7 @@
                         <td>{{loop.index}}</td>
                         <td>
                             <img src="https://proxy.duckduckgo.com/ip3/{{entry['domain']}}.ico" width=16/>
-                            <b><a href="/?{% if blockers %}reverse{% elif blocked %}domain{% endif %}={{entry['domain']}}" rel="nofollow noopener noreferrer">{{entry['domain']}}</a></b>&nbsp;
+                            <b><a href="../?{% if blockers %}reverse{% elif blocked %}domain{% endif %}={{entry['domain']}}" rel="nofollow noopener noreferrer">{{entry['domain']}}</a></b>&nbsp;
                             <a class="listlink" href="https://{{entry['domain']}}">↗</a>
                         </td>
                         <td>{{entry['highscore']}}</td>
@@ -124,10 +124,12 @@
                             <td>
                                 <img src="https://proxy.duckduckgo.com/ip3/{{block['blocker']}}.ico" width=16/>
                                 <b><a href="https://{{block['blocker']}}" rel="nofollow noopener noreferrer">{{block['blocker']}}</a></b>
+                                {% if reason or domain %}<a class="listlink" href="https://{{block['blocker']}}">↘</a>{% endif %}
                             </td>
                             <td>
                                 <img src="https://proxy.duckduckgo.com/ip3/{{domain or block['blocked']}}.ico" width=16/>
                                 <b><a href="https://{{domain or block['blocked']}}" rel="nofollow noopener noreferrer">{{block['blocked']}}</a></b>
+                                {% if reason or reverse %}<a class="listlink" href="https://{{domain or block['blocked']}}">↘</a>{% endif %}
                             </td>
                             <td>{{block['reason']}}</td>
                             <td>{{block['first_added']}}</td>
