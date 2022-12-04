@@ -6,6 +6,12 @@ import json
 
 domain = sys.argv[1]
 
+blacklist = [
+    "activitypub-troll.cf",
+    "gab.best",
+    "4chan.icu"
+]
+
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0"
 }
@@ -59,6 +65,15 @@ c.execute(
 
 for instance in peerlist:
     instance = instance.lower()
+
+    blacklisted = False
+    for domain in blacklist:
+        if domain in instance:
+            blacklisted = True
+
+    if blacklisted:
+        continue
+
     print(instance)
     try:
         c.execute(
