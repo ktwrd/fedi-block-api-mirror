@@ -1,5 +1,5 @@
-from requests import get
-from requests import post
+from reqto import get
+from reqto import post
 from hashlib import sha256
 import sqlite3
 from bs4 import BeautifulSoup

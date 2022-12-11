@@ -1,4 +1,4 @@
-from requests import get
+from reqto import get
 from hashlib import sha256
 import sqlite3
 import sys
