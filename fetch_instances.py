@@ -4,6 +4,9 @@ import sqlite3
 import sys
 import json
 
+with open("config.json") as f:
+    config = json.loads(f.read())
+
 domain = sys.argv[1]
 
 blacklist = [
@@ -13,7 +16,7 @@ blacklist = [
 ]
 
 headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0"
+    "user-agent": config["useragent"]
 }
 
 
